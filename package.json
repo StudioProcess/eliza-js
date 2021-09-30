@@ -1,0 +1,23 @@
+{
+  "name": "eliza-js",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "browser-sync . --watch --no-notify",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup index.mjs"
+  },
+  "keywords": [],
+  "author": "Martin Grödl <martin@process.studio> (https://process.studio)",
+  "license": "AGPL-3.0",
+  "engines": {
+    "node": "14.18.0",
+    "npm": "7.24.1"
+  },
+  "main": "index.mjs",
+  "devDependencies": {
+    "browser-sync": "^2.27.5"
+  }
+}
