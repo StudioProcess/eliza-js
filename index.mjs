@@ -70,7 +70,7 @@ function expand_synonyms(decomp, script, options) {
   }
   // expand synonyms
   const sre = new RegExp(`${options.synonym_marker}(\\S+)`, 'g'); // match all synonyms eg. @happy in "* i am * @happy *"
-  const res = decomp.replaceAll(sre, (match, p1) => {
+  const res = decomp.replace(sre, (match, p1) => {
     if ( Object.keys(script.syn_patterns).includes(p1) ) return script.syn_patterns[p1]; // replace with synonym regex pattern
     return p1; // remove synonym marker
   });
@@ -81,7 +81,7 @@ function decomp_to_regex(decomp, options) {
   // expand asterisk expressions
   const as = util.regex_escape(options.asterisk_marker);
   const asre = new RegExp(`\\s*${as}\\s*`, 'g');
-  let out = decomp.replaceAll(asre, (match, offset, string) => {
+  let out = decomp.replace(asre, (match, offset, string) => {
     // if (offset == 0) {
     //   if (offset + match.length == string.length) return '\\s*(.*)\\s*';
     //   return '\\s*(.*)\\s*\\b';
@@ -90,7 +90,7 @@ function decomp_to_regex(decomp, options) {
     return '\\s*(.*)\\s*';
   });
   // expand whitespace
-  out = out.replaceAll(/\s+/g, '\\s+');
+  out = out.replace(/\s+/g, '\\s+');
   return out;
 }
 
@@ -286,7 +286,7 @@ export async function make_eliza(options = {}) {
       }
       // pre-process
       const pre_regex = new RegExp(script.pre_pattern, 'g');
-      part = part.replaceAll(pre_regex, (match, p1) => script.pre[p1]);
+      part = part.replace(pre_regex, (match, p1) => script.pre[p1]);
       
       // look for keywords
       for (const keyword of script.keywords_new) {
@@ -329,7 +329,7 @@ function try_regex(regex, str) {
   return res.slice(1);
 }
 
-(async () => {
+export async function test() {
   // let str = '* i * you *';
   // let regex = decomp_to_regex(str);
   // // regex = "\\s*(.*)\\s*\\bi\\b\\s*(.*)\\s*\\byou\\b\\s*(.*)\\s*"; // orig
@@ -343,5 +343,4 @@ function try_regex(regex, str) {
   // console.log( eliza.get_initial() );
   eliza.transform('hello always, and dont recollect something other?#?#?wetjdk &*(#&@+) and so don ');
   
-})();
-
+}
