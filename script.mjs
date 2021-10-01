@@ -1,5 +1,6 @@
 export default {
   
+  // list of initial sentences from eliza (randomly chosen)
   "initial": [
     "How do you do.  Please tell me your problem.",
     // additions (not original)
@@ -7,6 +8,7 @@ export default {
     "Is something troubling you ?"
   ],
   
+  // list of final sentences from eliza (randomly chosen)
   "final": [
     "Goodbye.  It was nice talking to you.",
     // additions (not original)
@@ -16,6 +18,7 @@ export default {
     "Maybe we could discuss this moreover in our next session ?   Goodbye."
   ],
   
+  // list of quit keywords
   "quit": [
     "bye",
     "goodbye",
@@ -24,6 +27,8 @@ export default {
     "quit"
   ],
   
+  // pre-processing substitutions
+  // applied to the input string
   "pre": [
     "dont", "don't",
     "cant", "can't",
@@ -45,6 +50,8 @@ export default {
     "equivalent", "alike"
   ],
   
+  // post-processing substitutions
+  // applied to parameters during reassembly
   "post": [
     "am", "are",
     "your", "my",
@@ -57,6 +64,8 @@ export default {
     "i'm", "you are"
   ],
   
+  // synonym definitions
+  // to be used in decompositon rules (with '@')
   "synon": {
     "be": ["am", "is", "are", "was"],
     "belief": ["feel", "think", "believe", "wish"],
@@ -93,6 +102,21 @@ export default {
     ]]
   ]]
   */
+  
+  /* 
+  special characters/words:
+  - in keywords
+    - xnone .. 
+  - in decomposition rules
+    - * .. placeholder
+    - $ .. memory flag
+    - @ .. synonym
+  - in reassembly rules
+    - goto .. goto directive
+    - (n)  .. refers to numbered placeholder in decomposition (n >= 1)
+  */
+  
+  // keywords with associated transformation rules
   "keywords": [
     ["xnone", 0, [
      ["*", [
