@@ -6,7 +6,7 @@ const default_options = {
   'debug': false,
   'script': './script.mjs',
   'mem_size': 20,
-  'randomize_choices': true,
+  'randomize_choices': false,
   'capitalize_first_letter': true,
   'memory_marker': '$',
   'synonym_marker': '@',
@@ -15,6 +15,7 @@ const default_options = {
   'allow_chars': '\'äöüß',
   'fallback_reply': 'I am at a loss for words.',
   'none_keyword': 'xnone',
+  'goto_keyword': 'goto',
   'param_marker_pre': '(',
   'param_marker_post': ')',
 };
@@ -255,16 +256,44 @@ export async function make_eliza(options = {}) {
   // execute transformation rule on text
   // possibly produce a reply
   function exec_rule(keyword, text) {
-    // TODO
     console.log('executing rule', keyword.key);
     // iterate through all rules in the keyword (decomp -> reasmb)
     for (const rule of keyword.rules) {
       console.log(rule);
-      // * decomp rule needs to match text
-      // * choose reasmb rule (random or last_choice++)
-      // * reply = reasmb rule with substituted matches from decomp
-      // * substitutions are run through post-processing 
-      // TODO
+      // check if decomp rule matches input
+      const decomp_regex = new RegExp(rule.decomp_regex);
+      const decomp_match = text.match(decomp_regex); // first match of decomp pattern
+      if ( decomp_match ) {
+        // choose reasmb rule (random or last_choice+1)
+        const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length) : rule.last_choice + 1 ;
+        if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
+        const reasmb = rule.reasmb[reasmb_idx];
+        rule.lastIndex = reasmb_idx;
+        console.log('reasmb chosen', reasmb_idx, reasmb);
+        // detect goto directive
+        const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\s+)');
+        const goto_match = reasmb.match(goto_regex);
+        if (goto_match) {
+          const goto_key = script.keywords_new[ goto_match[1] ];
+          if (goto_key !== undefined) return exec_rule(goto_key, text);
+        }
+        // substitute positional parameters in reassembly rule
+        let reply = reasmb;
+        const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'g');
+        console.log(param_regex);
+        reply = reply.replace(param_regex, (match, p1) => {
+          const param = parseInt(p1);
+          if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
+          const val = decomp_match[param]; // capture groups start at idx 1, params as well!
+          if (val === undefined) return '';
+          // post-process param value
+          const post_regex = new RegExp(script.post_pattern, 'g');
+          val = val.replace(post_regex, (match, p1) => script.post[p1]);
+          return val;
+        });
+        if (rule.mem_flag) mem_push(reply);
+        return reply;
+      }
     }
     return '';
   }
