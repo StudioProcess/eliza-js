@@ -13,8 +13,8 @@
   "author": "Martin Grödl <martin@process.studio> (https://process.studio)",
   "license": "AGPL-3.0",
   "engines": {
-    "node": "14.18.0",
-    "npm": "7.24.1"
+    "node": ">=14.0.0",
+    "npm": ">=7.24.0"
   },
   "main": "index.mjs",
   "devDependencies": {

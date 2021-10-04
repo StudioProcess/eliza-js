@@ -1,9 +1,44 @@
 # eliza.js
 
+## Installation
+
+### For use in a Node.js project
+
+Install:
+
+```
+npm install github:StudioProcess/eliza-js
+```
+
+### For development
+
+Requirements:
+* node >= 14.0.0
+* npm >= 7.24.0
+
+Clone git repo:
+
+```
+git clone https://github.com/StudioProcess/eliza-js
+```
+
+Install dependencies:
+
+```
+cd eliza-js
+npm install
+```
+
+Start dev server:
+
+```
+npm start
+```
+
 ## Usage
 
 ```
-import { make_eliza } from './eliza-js/index.mjs';
+import { make_eliza } from './node_modules/eliza-js/index.mjs';
 
 (async () => {
   const eliza = await make_eliza();
