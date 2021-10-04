@@ -370,18 +370,18 @@ function try_regex(regex, str) {
   return res.slice(1);
 }
 
-export async function test() {
-  // let str = '* i * you *';
-  // let regex = decomp_to_regex(str);
-  // // regex = "\\s*(.*)\\s*\\bi\\b\\s*(.*)\\s*\\byou\\b\\s*(.*)\\s*"; // orig
-  // let input = "i you"
-  // let res = try_regex(regex, input);
-  // console.log( res );
-  // 
-  // return;
-  const eliza = await make_eliza({'debug': true});
-  console.log(eliza);
-  // console.log( eliza.get_initial() );
-  eliza.transform('hello always, and dont recollect something other?#?#?wetjdk &*(#&@+) and so don ');
-  
-}
+// export async function test() {
+//   // let str = '* i * you *';
+//   // let regex = decomp_to_regex(str);
+//   // // regex = "\\s*(.*)\\s*\\bi\\b\\s*(.*)\\s*\\byou\\b\\s*(.*)\\s*"; // orig
+//   // let input = "i you"
+//   // let res = try_regex(regex, input);
+//   // console.log( res );
+//   // 
+//   // return;
+//   const eliza = await make_eliza({'debug': true});
+//   console.log(eliza);
+//   // console.log( eliza.get_initial() );
+//   eliza.transform('hello always, and dont recollect something other?#?#?wetjdk &*(#&@+) and so don ');
+// 
+// }

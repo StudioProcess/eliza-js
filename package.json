@@ -7,7 +7,7 @@
     "start": "npm run dev",
     "dev": "browser-sync . --watch --no-notify",
     "test": "tap",
-    "build": "rollup index.mjs"
+    "build": "rollup index.mjs --file eliza.mjs --format es --silent"
   },
   "keywords": [],
   "author": "Martin Grödl <martin@process.studio> (https://process.studio)",
@@ -19,6 +19,7 @@
   "main": "index.mjs",
   "devDependencies": {
     "browser-sync": "^2.27.5",
+    "rollup": "^2.58.0",
     "tap": "^15.0.10"
   },
   "dependencies": {
