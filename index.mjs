@@ -239,6 +239,10 @@ export async function make_eliza(options = {}) {
     return quit;
   }
   
+  function get_config() {
+    return options;
+  }
+  
   function mem_push(t) {
     mem.push(t);
     if (mem.length > options.mem_size) mem.shift();
@@ -348,6 +352,7 @@ export async function make_eliza(options = {}) {
     get_initial,
     get_final,
     is_quit,
+    get_config,
     transform,
   };
 }

@@ -5,12 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>eliza-js</title>
+  <style>
+    #output { overflow:scroll; height:calc(100vh - 60px); }
+    #input, #submit { border:1px solid black; }
+    #input { width:30vw; height:16px}
+    #bottom { position:absolute; bottom:10px; }
+  </style>
 </head>
 <body>
-  <pre>eliza-js</pre>
+  <pre id="output"></pre>
+  <div id="bottom">
+    <input type="text" id="input"></input><button id="submit">Submit</button>
+  </div>
   <script type="module">
-    import * as eliza from './index.mjs';
-    eliza.test();
+    
+    import { make_eliza } from './index.mjs';
+    const eliza = await make_eliza();
+    
+    const out = document.querySelector('#output');
+    const inp = document.querySelector('#input');
+    const sub = document.querySelector('#submit');
+    
+    function print(text) {
+      if (text == undefined) text = '';
+      if (typeof text != 'string') {
+        text = JSON.stringify(text, '', 2);
+      }
+      out.textContent += text + '\n';
+    }
+    
+    function clear() {
+      out.textContent = '';
+    }
+    
+    function onSubmit() {
+      let text = inp.value.trim();
+      inp.value = '';
+      if (text == '') return;
+      print('  You: ' + text);
+      print('ELIZA: ' + eliza.transform(text));
+      out.scrollTop = out.scrollHeight;
+      inp.focus();
+    }
+    
+    sub.addEventListener('click', (e) => {
+      onSubmit();
+    });
+    
+    input.addEventListener('keypress', (e) => {
+      if (e.key == 'Enter') onSubmit();
+    });
+    
+    print('eliza-js');
+    print();
+    print(eliza.get_config());
+    print();
+    print('ELIZA: ' + eliza.get_initial());
+    inp.focus();
+    
   </script>
 </body>
 </html>
