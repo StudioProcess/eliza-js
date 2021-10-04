@@ -57,12 +57,15 @@
       submit(text);
     }
     
-    async function reset() {
-      eliza = await make_eliza();
+    async function reset(seed = undefined) {
+      if (seed == undefined) {
+        seed = Date.now();
+      }
+      eliza = await make_eliza({seed});
       inputs = [];
       clear();
       print('eliza-js');
-      print(new Date().toLocaleString());
+      print(new Date().toISOString());
       print();
       print(eliza.get_config());
       print();
@@ -72,7 +75,7 @@
     
     async function replay() {
       let _inputs = inputs;
-      await reset();
+      await reset(eliza.get_config().seed);
       console.log('replaying', _inputs)
       for (const text of _inputs) {
         submit(text);
