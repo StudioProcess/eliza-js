@@ -1,3 +1,5 @@
+import './node_modules/seedrandom/seedrandom.js'; // adds Math.seedrandom()
+
 import * as util from './util.mjs';
 // import script from './script.mjs';
 // console.log(script);
@@ -6,6 +8,7 @@ const default_options = {
   'debug': false,
   'script': './script.mjs',
   'mem_size': 20,
+  'seed': -1,
   'randomize_choices': false,
   'capitalize_first_letter': true,
   'memory_marker': '$',
@@ -118,6 +121,10 @@ export async function make_eliza(options = {}) {
   options = Object.assign({}, default_options, options);
   if (options.debug) console.log('options:', options);
   
+  // initialize rng
+  const seed = options.seed < 0 ? undefined : options.seed;
+  const rnd = new Math.seedrandom(seed);
+  
   // load script
   const script = (await import(options.script)).default;
   
@@ -228,11 +235,11 @@ export async function make_eliza(options = {}) {
   if (options.debug) console.log('last_choice', last_choice);
   
   function get_initial() {
-    return script.initial[ util.rnd_int(script.initial.length) ];
+    return script.initial[ util.rnd_int(script.initial.length, rnd) ];
   }
   
   function get_final() {
-    return script.final[ util.rnd_int(script.final.length) ];
+    return script.final[ util.rnd_int(script.final.length, rnd) ];
   }
   
   function is_quit() {
@@ -251,7 +258,7 @@ export async function make_eliza(options = {}) {
   function mem_pop() {
     if (mem.length == 0) return '';
     if (options.randomize_choices) {
-      const idx = util.rnd_int(mem.length);
+      const idx = util.rnd_int(mem.length, rnd);
       return mem.splice(idx, 1)[0];
     }
     return mem.shift();
@@ -269,7 +276,7 @@ export async function make_eliza(options = {}) {
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
         // choose reasmb rule (random or last_choice+1)
-        const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length) : rule.last_choice + 1 ;
+        const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
         if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
         const reasmb = rule.reasmb[reasmb_idx];
         rule.lastIndex = reasmb_idx;

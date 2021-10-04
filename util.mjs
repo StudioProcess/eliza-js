@@ -7,8 +7,8 @@ export function contract_ws(str) {
   return str.trim().replace(/\s+/g, ' ');
 }
 
-export function rnd_int(max) {
-  return Math.floor(Math.random() * max);
+export function rnd_int(max, func=Math.random) {
+  return Math.floor(func() * max);
 }
 
 export function lowercase_obj(obj) {

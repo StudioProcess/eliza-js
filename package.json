@@ -20,5 +20,8 @@
   "devDependencies": {
     "browser-sync": "^2.27.5",
     "tap": "^15.0.10"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.5"
   }
 }
