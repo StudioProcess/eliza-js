@@ -7,9 +7,10 @@
   <title>eliza-js</title>
   <style>
     #output { overflow:scroll; height:calc(100vh - 60px); }
-    #input, #submit { border:1px solid black; }
-    #input { width:30vw; height:16px}
+    #input, button { border:1px solid black; }
+    #input { width:40vw; height:16px}
     #bottom { position:absolute; bottom:10px; }
+    #bottom-right { position:absolute; bottom:10px; right:10px }
   </style>
 </head>
 <body>
@@ -17,14 +18,17 @@
   <div id="bottom">
     <input type="text" id="input"></input><button id="submit">Submit</button>
   </div>
+  <div id="bottom-right">
+    <button id="reset">Reset</button><button id="replay">Reset & Replay</button>
+  </div>
   <script type="module">
     
     import { make_eliza } from './index.mjs';
-    const eliza = await make_eliza();
     
     const out = document.querySelector('#output');
     const inp = document.querySelector('#input');
-    const sub = document.querySelector('#submit');
+    
+    let eliza, inputs;
     
     function print(text) {
       if (text == undefined) text = '';
@@ -38,17 +42,44 @@
       out.textContent = '';
     }
     
-    function onSubmit() {
-      let text = inp.value.trim();
-      inp.value = '';
-      if (text == '') return;
+    function submit(text) {
       print('  You: ' + text);
       print('ELIZA: ' + eliza.transform(text));
+      inputs.push(text);
       out.scrollTop = out.scrollHeight;
       inp.focus();
     }
     
-    sub.addEventListener('click', (e) => {
+    function onSubmit() {
+      let text = inp.value.trim();
+      inp.value = '';
+      if (text == '') return;
+      submit(text);
+    }
+    
+    async function reset() {
+      eliza = await make_eliza();
+      inputs = [];
+      clear();
+      print('eliza-js');
+      print(new Date().toLocaleString());
+      print();
+      print(eliza.get_config());
+      print();
+      print('ELIZA: ' + eliza.get_initial());
+      inp.focus();
+    }
+    
+    async function replay() {
+      let _inputs = inputs;
+      await reset();
+      console.log('replaying', _inputs)
+      for (const text of _inputs) {
+        submit(text);
+      }
+    }
+    
+    document.querySelector('#submit').addEventListener('click', (e) => {
       onSubmit();
     });
     
@@ -56,12 +87,15 @@
       if (e.key == 'Enter') onSubmit();
     });
     
-    print('eliza-js');
-    print();
-    print(eliza.get_config());
-    print();
-    print('ELIZA: ' + eliza.get_initial());
-    inp.focus();
+    document.querySelector('#reset').addEventListener('click', (e) => {
+      reset();
+    });
+    
+    document.querySelector('#replay').addEventListener('click', (e) => {
+      replay();
+    });
+    
+    await reset();
     
   </script>
 </body>
