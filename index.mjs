@@ -1,4 +1,6 @@
-import './node_modules/seedrandom/seedrandom.js'; // adds Math.seedrandom()
+// browser adds Math.seedrandom(), node populates seedrandom.default
+import * as seedrandom from './node_modules/seedrandom/seedrandom.js';
+if ('default' in seedrandom) Math.seedrandom = seedrandom.default; // set Math.seedrandom in node
 
 import * as util from './util.mjs';
 // import script from './script.mjs';
