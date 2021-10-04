@@ -7,10 +7,12 @@
   <title>eliza-js</title>
   <style>
     #output { overflow:scroll; height:calc(100vh - 60px); }
-    #input, button { border:1px solid black; }
-    #input { width:40vw; height:16px}
+    input[type=text], button { border:1px solid black; }
+    input[type=text] { height:16px; }
+    #input { width:40vw;}
     #bottom { position:absolute; bottom:10px; }
     #bottom-right { position:absolute; bottom:10px; right:10px }
+    label { font-family:system-ui; font-size:11px; }
   </style>
 </head>
 <body>
@@ -19,7 +21,7 @@
     <input type="text" id="input"></input><button id="submit">Submit</button>
   </div>
   <div id="bottom-right">
-    <button id="reset">Reset</button><button id="replay">Reset & Replay</button>
+    <label for="script">Script</label> <input type="text" id="script" name="script"></input><button id="reset">Reset</button><button id="replay">Reset & Replay</button>
   </div>
   <script type="module">
     
@@ -27,6 +29,7 @@
     
     const out = document.querySelector('#output');
     const inp = document.querySelector('#input');
+    const inp_script = document.querySelector('#script');
     
     let eliza, inputs;
     
@@ -57,29 +60,69 @@
       submit(text);
     }
     
+    async function check_script(path) {
+      try {
+        await import(path);
+      } catch (e) {
+        return { success:false, error:e };
+      }
+      return { success:true, error:null };
+    }
+    
     async function reset(seed = undefined) {
       if (seed == undefined) {
         seed = Date.now();
       }
-      eliza = await make_eliza({seed});
-      inputs = [];
+      
       clear();
       print('eliza-js');
       print(new Date().toISOString());
       print();
+      
+      const check_result = await check_script(inp_script.value);
+      if ( !check_result.success ) {
+        print('error loading script: ' + inp_script.value);
+        const e = check_result.error;
+        console.error(e);
+        print(e.name + ': ' + e.message);
+        if ('sourceURL' in e) print('  file: ' + e.sourceURL);
+        if ('line' in e)      print('  line: ' + e.line);
+        if ('column' in e)    print('  column: ' + e.column);
+        return false;
+      }
+      
+      eliza = await make_eliza({
+        seed,
+        script: inp_script.value
+      });
+      set_script_path(inp_script.value);
+      inputs = [];
       print(eliza.get_config());
       print();
       print('ELIZA: ' + eliza.get_initial());
       inp.focus();
+      return true;
     }
     
     async function replay() {
       let _inputs = inputs;
-      await reset(eliza.get_config().seed);
-      console.log('replaying', _inputs)
-      for (const text of _inputs) {
-        submit(text);
+      const reset_success = await reset(eliza.get_config().seed);
+      if (reset_success) {
+        console.log('replaying', _inputs)
+        for (const text of _inputs) {
+          submit(text);
+        }
       }
+    }
+    
+    function get_script_path() {
+      let path = localStorage.getItem('script_path');
+      if (!path) path = './script.mjs';
+      return path;
+    }
+    
+    function set_script_path(path) {
+      localStorage.setItem('script_path', path);
     }
     
     document.querySelector('#submit').addEventListener('click', (e) => {
@@ -97,6 +140,8 @@
     document.querySelector('#replay').addEventListener('click', (e) => {
       replay();
     });
+    
+    inp_script.value = get_script_path();
     
     await reset();
     
