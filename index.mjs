@@ -300,7 +300,7 @@ export async function make_eliza(options = {}) {
         reply = reply.replace(param_regex, (match, p1) => {
           const param = parseInt(p1);
           if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
-          const val = decomp_match[param]; // capture groups start at idx 1, params as well!
+          let val = decomp_match[param]; // capture groups start at idx 1, params as well!
           if (val === undefined) return '';
           // post-process param value
           const post_regex = new RegExp(script.post_pattern, 'g');
