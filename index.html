@@ -31,7 +31,7 @@
     const inp = document.querySelector('#input');
     const inp_script = document.querySelector('#script');
     
-    let eliza, inputs;
+    let eliza, inputs, history_idx, history_saved_input;
     
     function print(text) {
       if (text == undefined) text = '';
@@ -49,6 +49,7 @@
       print('  You: ' + text);
       print('ELIZA: ' + eliza.transform(text));
       inputs.push(text);
+      history_idx = -1;
       out.scrollTop = out.scrollHeight;
       inp.focus();
     }
@@ -58,6 +59,23 @@
       inp.value = '';
       if (text == '') return;
       submit(text);
+    }
+    
+    function history(offset) {
+      if (inputs.length == 0) return;
+      if (history_idx < 0) {
+        history_idx = inputs.length; // start after last input
+        history_saved_input = inp.value; // save current input
+      }
+      history_idx += offset;
+      if (history_idx < 0) history_idx = 0;
+      
+      if (history_idx >= inputs.length) {
+        inp.value = history_saved_input; // retrieve saved input
+        history_idx = -1;
+      } else {
+        inp.value = inputs[history_idx]; // retrieve history
+      }
     }
     
     async function check_script(path) {
@@ -97,6 +115,8 @@
       });
       set_script_path(inp_script.value);
       inputs = [];
+      history_idx = -1;
+      history_saved_input = '';
       print(eliza.get_config());
       print();
       print('ELIZA: ' + eliza.get_initial());
@@ -129,8 +149,10 @@
       onSubmit();
     });
     
-    input.addEventListener('keypress', (e) => {
+    input.addEventListener('keydown', (e) => {
       if (e.key == 'Enter') onSubmit();
+      else if (e.key == 'ArrowUp') { history(-1); e.preventDefault(); }
+      else if (e.key == 'ArrowDown') { history(1); e.preventDefault(); }
     });
     
     document.querySelector('#reset').addEventListener('click', (e) => {
