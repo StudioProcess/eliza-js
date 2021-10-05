@@ -4,10 +4,10 @@ if ('default' in seedrandom) Math.seedrandom = seedrandom.default; // set Math.s
 
 import * as util from './util.mjs';
 
-
-
 const default_options = {
   'debug': false,
+  'debug_options': false,
+  'debug_script': false,
   'script': './script.mjs',
   'mem_size': 20,
   'seed': -1,
@@ -64,7 +64,7 @@ function set_memory_flag(rule, options) {
   return rule;
 }
 
-function expand_synonyms(decomp, script, options, log) {
+function expand_synonyms(decomp, script, options) {
   // (only once:) produce synonym list eg. { be: "(be|am|is|are|was)",  ... }
   if (!script.syn_patterns || typeof script.syn_patterns != 'object') {
     script.syn_patterns = {};
@@ -75,7 +75,6 @@ function expand_synonyms(decomp, script, options, log) {
         script.syn_patterns[syn] = '(' + escaped_syn + '|' + escaped_synons.join('|') + ')';
       }
     }
-    if (options.debug) log('syn_patterns', script.syn_patterns);
   }
   // expand synonyms
   const sre = new RegExp(`${options.synonym_marker}(\\S+)`, 'g'); // match all synonyms eg. @happy in "* i am * @happy *"
@@ -139,7 +138,6 @@ function parse_script(script, options, log) {
   
   // parse keywords script to a more readable object structure
   script.keywords_new = script.keywords.map(parse_keyword);
-  if (options.debug) console.dir(script);
   
   // convert rules to regexps
   // expand synonyms and insert asterisk expressions for backtracking
@@ -152,7 +150,7 @@ function parse_script(script, options, log) {
       set_memory_flag(r, options);
       
       // expand synonyms
-      r.decomp_regex = expand_synonyms(r.decomp, script, options, log);
+      r.decomp_regex = expand_synonyms(r.decomp, script, options);
     
       // expand asterisk expressions
       r.decomp_regex = decomp_to_regex(r.decomp_regex, options);
@@ -218,13 +216,12 @@ export async function make_eliza(options = {}) {
   
   // handle options
   options = Object.assign({}, default_options, options);
+  if (options.debug_options) console.log('options:', options);
   
   // define a log function (does nothing if debug option is false)
   const log = options.debug ? console.log : () => {};
   // add a dir function as property
   log.dir = options.debug ? console.dir : () => {}; 
-  
-  log('options:', options);
   
   // initialize rng
   const seed = options.seed < 0 ? undefined : options.seed;
@@ -237,19 +234,20 @@ export async function make_eliza(options = {}) {
   parse_script(script, options, log);
 
   // variables
-  let quit, mem, last_choice;
+  let quit, mem;
+  // let last_choice;
   
   function reset() {
     quit = false;
     mem = [];
-    last_choice = [];
-    for (let k = 0; k < script.keywords.length; k++) {
-      last_choice[k] = [];
-      const rules = script.keywords[k][2]; // transformation rules
-      for (let i = 0; i < rules.length; i++) {
-        last_choice[k][i] = -1;
-      }
-    }
+    // last_choice = [];
+    // for (let k = 0; k < script.keywords.length; k++) {
+    //   last_choice[k] = [];
+    //   const rules = script.keywords[k][2]; // transformation rules
+    //   for (let i = 0; i < rules.length; i++) {
+    //     last_choice[k][i] = -1;
+    //   }
+    // }
     for (let k of script.keywords_new) {
       for (let r of k.rules) {
         r.last_choice = -1;
@@ -290,21 +288,19 @@ export async function make_eliza(options = {}) {
   // execute transformation rule on text
   // possibly produce a reply
   function exec_rule(keyword, text) {
-    log('executing rule', keyword.key);
     // iterate through all rules in the keyword (decomp -> reasmb)
-    for (const rule of keyword.rules) {
-      log(rule);
+    for (const [idx, rule] of keyword.rules.entries()) {
       // check if decomp rule matches input
       const decomp_regex = new RegExp(rule.decomp_regex);
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
-        // console.log('decomp matched', rule.decomp, decomp_regex, decomp_match);
+        log('rule ' + idx + ' matched:', rule)
         // choose reasmb rule (random or last_choice+1)
         const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
         if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
         const reasmb = rule.reasmb[reasmb_idx];
         rule.lastIndex = reasmb_idx;
-        log('reasmb chosen', reasmb_idx, reasmb);
+        log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));
         // console.log('reasmb chosen', reasmb_idx, reasmb);
         // detect goto directive
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\S+)');
@@ -316,18 +312,17 @@ export async function make_eliza(options = {}) {
         // substitute positional parameters in reassembly rule
         let reply = reasmb;
         const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'g');
-        log(param_regex);
         reply = reply.replace(param_regex, (match, p1) => {
           const param = parseInt(p1);
           if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
           let val = decomp_match[param]; // capture groups start at idx 1, params as well!
           if (val === undefined) return '';
           val = val.trim();
-          // console.log('param', param, JSON.stringify(val));
           // post-process param value
           const post_regex = new RegExp(script.post_pattern, 'g');
-          val = val.replace(post_regex, (match, p1) => script.post[p1]);
-          return val;
+          const val_post = val.replace(post_regex, (match, p1) => script.post[p1]);
+          console.log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
+          return val_post;
         });
         if (rule.mem_flag) mem_push(reply);
         return reply;
@@ -338,11 +333,11 @@ export async function make_eliza(options = {}) {
   
   function transform(text) {
     text = normalize_input(text, options);
-    log(text);
+    log('transforming (normalized):', JSON.stringify(text));
     let parts = text.split('.');
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');
-    log(parts);
+    log('parts:', parts);
     
     // for each part...
     for (let [idx, part] of parts.entries()) {
@@ -359,8 +354,9 @@ export async function make_eliza(options = {}) {
       for (const keyword of script.keywords_new) {
         const key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'i');
         if ( key_regex.test(part) ) {
-          log('keyword found', keyword, part);
+          log('keyword found (part ' + idx + '):', keyword);
           const reply = exec_rule(keyword, part);
+          log('reply:', JSON.stringify(reply));
           if (reply != '') return reply;
         }
       }
@@ -384,7 +380,10 @@ export async function make_eliza(options = {}) {
   
   reset();
   
-  if (options.debug) log('last_choice', last_choice);
+  // log script after reset (last choice computed)
+  if (options.debug_script) {
+    console.log('script:'); console.dir(script, {depth:2});
+  }
   
   return {
     get_initial,
