@@ -3,8 +3,8 @@ import * as seedrandom from './node_modules/seedrandom/seedrandom.js';
 if ('default' in seedrandom) Math.seedrandom = seedrandom.default; // set Math.seedrandom in node
 
 import * as util from './util.mjs';
-// import script from './script.mjs';
-// console.log(script);
+
+
 
 const default_options = {
   'debug': false,
@@ -25,12 +25,15 @@ const default_options = {
   'param_marker_post': ')',
 };
 
+
+
 function parse_rule(r) {
   return {
     "decomp": r[0],
     "reasmb": r[1]
   };
 }
+
 function parse_keyword(key) {
   // ["<key>", <rank>, [
   //   ["<decomp>", [
@@ -61,7 +64,7 @@ function set_memory_flag(rule, options) {
   return rule;
 }
 
-function expand_synonyms(decomp, script, options) {
+function expand_synonyms(decomp, script, options, log) {
   // (only once:) produce synonym list eg. { be: "(be|am|is|are|was)",  ... }
   if (!script.syn_patterns || typeof script.syn_patterns != 'object') {
     script.syn_patterns = {};
@@ -113,7 +116,6 @@ function decomp_to_regex(decomp, options) {
   return out;
 }
 
-
 function normalize_input(text, options) {
   text = text.toLowerCase();
   // ignore all characters that arent explicitly allowed
@@ -129,25 +131,7 @@ function normalize_input(text, options) {
   return text;
 }
 
-
-export async function make_eliza(options = {}) {
-  
-  // handle options
-  options = Object.assign({}, default_options, options);
-  if (options.debug) console.log('options:', options);
-  
-  // define a log function (does nothing if debug option is false)
-  const log = options.debug ? console.log : () => {};
-  
-  // initialize rng
-  const seed = options.seed < 0 ? undefined : options.seed;
-  const rnd = new Math.seedrandom(seed);
-  
-  // load script
-  const script = (await import(options.script)).default;
-  
-  // parse script and convert it from canonical form to internal use
-
+function parse_script(script, options, log) {
   // check for keywords or install empty structure to prevent any errors
   if ( !script.keywords || !Array.isArray(script.keywords || script.keywords.length == 0) ) {
     script.keywords = [['###',0,[['###',[]]]]];
@@ -155,7 +139,7 @@ export async function make_eliza(options = {}) {
   
   // parse keywords script to a more readable object structure
   script.keywords_new = script.keywords.map(parse_keyword);
-  if (options.debug) log('script:', script);
+  if (options.debug) console.dir(script);
   
   // convert rules to regexps
   // expand synonyms and insert asterisk expressions for backtracking
@@ -168,7 +152,7 @@ export async function make_eliza(options = {}) {
       set_memory_flag(r, options);
       
       // expand synonyms
-      r.decomp_regex = expand_synonyms(r.decomp, script, options);
+      r.decomp_regex = expand_synonyms(r.decomp, script, options, log);
     
       // expand asterisk expressions
       r.decomp_regex = decomp_to_regex(r.decomp_regex, options);
@@ -226,7 +210,32 @@ export async function make_eliza(options = {}) {
   if (!script.final || !Array.isArray(script.final)) {
     script.final = [''];
   }
+}
+
+
+
+export async function make_eliza(options = {}) {
   
+  // handle options
+  options = Object.assign({}, default_options, options);
+  
+  // define a log function (does nothing if debug option is false)
+  const log = options.debug ? console.log : () => {};
+  // add a dir function as property
+  log.dir = options.debug ? console.dir : () => {}; 
+  
+  log('options:', options);
+  
+  // initialize rng
+  const seed = options.seed < 0 ? undefined : options.seed;
+  const rnd = new Math.seedrandom(seed);
+  
+  // load script
+  const script = (await import(options.script)).default;
+  
+  // parse script and convert it from canonical form to internal use
+  parse_script(script, options, log);
+
   // variables
   let quit, mem, last_choice;
   
@@ -248,10 +257,6 @@ export async function make_eliza(options = {}) {
     }
   }
   
-  reset();
-  
-  if (options.debug) log('last_choice', last_choice);
-  
   function get_initial() {
     return script.initial[ util.rnd_int(script.initial.length, rnd) ];
   }
@@ -264,7 +269,7 @@ export async function make_eliza(options = {}) {
     return quit;
   }
   
-  function get_config() {
+  function get_options() {
     return options;
   }
   
@@ -377,11 +382,15 @@ export async function make_eliza(options = {}) {
     return options.fallback_reply;
   }
   
+  reset();
+  
+  if (options.debug) log('last_choice', last_choice);
+  
   return {
     get_initial,
-    get_final,
-    is_quit,
-    get_config,
     transform,
+    is_quit,
+    reset,
+    get_options,
   };
 }

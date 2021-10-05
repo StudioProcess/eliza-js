@@ -132,9 +132,9 @@ tap.skip('single responses', {bail:true}, async t => {
     "Why do you think I don't argue with you ?",
     "Tell me more about your family.",
   ];
-  console.log(expected);
+  // console.log(expected);
   for (const [idx, input] of inputs.entries()) {
-    const e = await make_eliza({ seed:0, randomize_choices:false });
+    const e = await make_eliza({ seed:0, randomize_choices:false, debug:true });
     const res = e.transform(input);
     // console.log(idx, input, res);
     t.equal( res, expected[idx], JSON.stringify(input) );
