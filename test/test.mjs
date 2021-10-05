@@ -52,7 +52,6 @@ tap.test('assorted inputs', async t => {
 });
 
 
-
 tap.test('random inputs', async t => {
   const ROUNDS = 10;
   const STR_LEN = 50;
@@ -74,3 +73,28 @@ tap.test('random inputs', async t => {
     }, 'testing input: ' + str);
   }
 });
+
+
+tap.test('fix goto', async t => {
+  const e = await make_eliza({ seed:0 });
+  const inputs = [
+    'i apologise',
+    'well i am good',
+    'well you are pitiful',
+    'i believe you',
+    'you remind me of',
+    'who else?',
+    'when now?',
+    'where else?',
+    'why then?',
+    'everybody',
+    'nobody',
+    'noone',
+    'i am like him'
+  ];
+  for (let input of inputs) {
+    const res = e.transform(input);
+    t.notOk(res.startsWith('goto'), 'testing input: ' + input);
+  }
+});
+

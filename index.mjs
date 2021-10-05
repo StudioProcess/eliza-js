@@ -287,10 +287,10 @@ export async function make_eliza(options = {}) {
         rule.lastIndex = reasmb_idx;
         log('reasmb chosen', reasmb_idx, reasmb);
         // detect goto directive
-        const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\s+)');
+        const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\S+)');
         const goto_match = reasmb.match(goto_regex);
         if (goto_match) {
-          const goto_key = script.keywords_new[ goto_match[1] ];
+          const goto_key = script.keywords_new.find( x => x.key == goto_match[1] );
           if (goto_key !== undefined) return exec_rule(goto_key, text);
         }
         // substitute positional parameters in reassembly rule
