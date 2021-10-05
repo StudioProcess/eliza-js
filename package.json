@@ -7,6 +7,7 @@
     "start": "npm run dev",
     "dev": "browser-sync . --watch --no-notify",
     "test": "tap",
+    "test-only": "tap --only",
     "build": "rollup index.mjs --file eliza.mjs --format es --silent"
   },
   "keywords": [],

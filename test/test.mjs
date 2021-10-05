@@ -98,3 +98,14 @@ tap.test('fix goto', async t => {
   }
 });
 
+tap.test('extra space', async t => {
+  const inputs = [
+    "You don't argue with me.",
+  ];
+  for (let input of inputs) {
+    const e = await make_eliza({ seed:0, randomize_choices:false });
+    const res = e.transform(input);
+    t.notMatch( res, /\s\s+/ ); // should not contain 2 or more consecutive whitespaces
+  }
+});
+

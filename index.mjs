@@ -93,7 +93,17 @@ function decomp_to_regex(decomp, options) {
     //   return '\\s*(.*)\\s*\\b';
     // }
     // return '\\b\\s*(.*)\\s*'
-    return '\\s*(.*)\\s*';
+    
+    // return '\\s*(.*)\\s*'; // Note: this can include trailing whitespace into the capture group -> trim later
+    
+    /* 
+      capture words with whitespace in-between (or the empty string)
+      won't include trailing whitespace
+      (?:) ... non-capturing group
+      \s*\S+ ... a single word w/leading whitespace
+      (\s*\S+)* ... multiple words with whitespace in-between (no trailing whitespace!)
+    */
+    return '\\s*((?:\\s*\\S+)*)\\s*'; 
   });
   // expand whitespace
   out = out.replace(/\s+/g, '\\s+');
@@ -280,12 +290,14 @@ export async function make_eliza(options = {}) {
       const decomp_regex = new RegExp(rule.decomp_regex);
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
+        // console.log('decomp matched', rule.decomp, decomp_regex, decomp_match);
         // choose reasmb rule (random or last_choice+1)
         const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
         if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
         const reasmb = rule.reasmb[reasmb_idx];
         rule.lastIndex = reasmb_idx;
         log('reasmb chosen', reasmb_idx, reasmb);
+        // console.log('reasmb chosen', reasmb_idx, reasmb);
         // detect goto directive
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\S+)');
         const goto_match = reasmb.match(goto_regex);
@@ -302,6 +314,8 @@ export async function make_eliza(options = {}) {
           if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
           let val = decomp_match[param]; // capture groups start at idx 1, params as well!
           if (val === undefined) return '';
+          val = val.trim();
+          // console.log('param', param, JSON.stringify(val));
           // post-process param value
           const post_regex = new RegExp(script.post_pattern, 'g');
           val = val.replace(post_regex, (match, p1) => script.post[p1]);
