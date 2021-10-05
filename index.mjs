@@ -94,18 +94,21 @@ function decomp_to_regex(decomp, options) {
     // }
     // return '\\b\\s*(.*)\\s*'
     
-    // return '\\s*(.*)\\s*'; // Note: this can include trailing whitespace into the capture group -> trim later
-    
-    /* 
+    /*
+      Note: This crashes node/chrome (v8); See branch v8-crash
       capture words with whitespace in-between (or the empty string)
       won't include trailing whitespace
       (?:) ... non-capturing group
       \s*\S+ ... a single word w/leading whitespace
       (\s*\S+)* ... multiple words with whitespace in-between (no trailing whitespace!)
     */
-    return '\\s*((?:\\s*\\S+)*)\\s*'; 
+    // return '\\s*((?:\\s*\\S+)*)\\s*'; 
+    
+    // Note: this can include trailing whitespace into the capture group -> trim later
+    return '\\s*(.*)\\s*';
   });
   // expand whitespace
+  // TODO: remove dependency on this, by preprocessing whitespace
   out = out.replace(/\s+/g, '\\s+');
   return out;
 }
@@ -382,25 +385,3 @@ export async function make_eliza(options = {}) {
     transform,
   };
 }
-
-function try_regex(regex, str) {
-  let res = str.match(new RegExp(regex));
-  if (res == null) return null;
-  return res.slice(1);
-}
-
-// export async function test() {
-//   // let str = '* i * you *';
-//   // let regex = decomp_to_regex(str);
-//   // // regex = "\\s*(.*)\\s*\\bi\\b\\s*(.*)\\s*\\byou\\b\\s*(.*)\\s*"; // orig
-//   // let input = "i you"
-//   // let res = try_regex(regex, input);
-//   // console.log( res );
-//   // 
-//   // return;
-//   const eliza = await make_eliza({'debug': true});
-//   console.log(eliza);
-//   // console.log( eliza.get_initial() );
-//   eliza.transform('hello always, and dont recollect something other?#?#?wetjdk &*(#&@+) and so don ');
-// 
-// }
