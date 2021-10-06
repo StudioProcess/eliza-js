@@ -304,10 +304,10 @@ export async function make_eliza(options = {}) {
       if ( decomp_match ) {
         log('rule ' + idx + ' matched:', rule)
         // choose reasmb rule (random or last_choice+1)
-        const reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
+        let reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
         if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
         const reasmb = rule.reasmb[reasmb_idx];
-        rule.lastIndex = reasmb_idx;
+        rule.last_choice = reasmb_idx;
         log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));
         // detect goto directive
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\S+)');

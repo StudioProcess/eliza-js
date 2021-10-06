@@ -143,46 +143,45 @@ tap.test('single responses', {bail:true}, async t => {
 });
 
 
+tap.test('example conversation', {bail:true}, async t => {
+  const e = await make_eliza({ seed:0, randomize_choices:false, debug:false });
+  const inputs = [
+    "Men are all alike.",
+    "They're always bugging us about something or other.",
+    "Well, my boyfriend made me come here.",
+    "He says I'm depressed much of the time.",
+    "It's true. I am unhappy.",
+    "I need some help, that much seems certain.",
+    "Perhaps I could learn to get along with my mother.",
+    "My mother takes care of me.",
+    "My father.",
+    "You are like my father in some ways.",
+    "You are not very aggressive but I think you don't want me to notice that.",
+    "You don't argue with me.",
+    "You are afraid of me.",
+    "My father is afraid of everybody.",
+    "Bullies."
+  ];
+  const expected = [
+    'In what way ?',
+    'Can you think of a specific example ?',
+    'Your boyfriend made you come here ?',
+    'I am sorry to hear that you are depressed.',
+    'Do you think coming here will help you not to be unhappy ?',
+    'What would it mean to you if you got some help ?',
+    'Tell me more about your family.',
+    'Who else in your family takes care of you ?',
+    'Your father ?',
+    'What resemblence do you see ?',
+    'What makes you think I am not very aggressive ?',
+    'Why do you think I don\'t argue with you ?',
+    'Does it please you to believe I am afraid of you ?',
+    'What else comes to your mind when you think of your father ?',
+    'Does that have anything to do with the fact that your boyfriend made you come here ?'
+  ];
 
-// tap.only('example conversation', {bail:true}, async t => {
-//   const e = await make_eliza({ seed:0, randomize_choices:false });
-//   const inputs = [
-//     "Men are all alike.",
-//     "They're always bugging us about something or other.",
-//     "Well, my boyfriend made me come here.",
-//     "He says I'm depressed much of the time.",
-//     "It's true. I am unhappy.",
-//     "I need some help, that much seems certain.",
-//     "Perhaps I could learn to get along with my mother.",
-//     "My mother takes care of me.",
-//     "My father.",
-//     "You are like my father in some ways.",
-//     "You are not very aggressive but I think you don't want me to notice that.",
-//     "You don't argue with me.",
-//     "You are afraid of me.",
-//     "My father is afraid of everybody.",
-//     "Bullies."
-//   ];
-//   const expected = [
-//     'In what way ?',
-//     'Can you think of a specific example ?',
-//     'Your boyfriend made you come here ?',
-//     'I am sorry to hear that you are depressed.',
-//     'Do you think coming here will help you not to be unhappy ?',
-//     'What would it mean to you if you got some help ?',
-//     'Tell me more about your family.',
-//     'Who else in your family takes care of you ?',
-//     'Your father ?',
-//     'What resemblence do you see ?',
-//     'What makes you think I am not very aggressive ?',
-//     'Why do you think I don\'t argue with you ?',
-//     'Does it please you to believe I am afraid of you ?',
-//     'What else comes to your mind when you think of your father ?',
-//     'Does that have anything to do with the fact that your boyfriend made you come here ?'
-//   ];
-// 
-//   for (let [idx, input] of inputs.entries()) {
-//     const res = e.transform(input);
-//     t.equal( res, expected[idx], `step ${idx+1}/${inputs.length} ${JSON.stringify(input)}` );
-//   }
-// });
+  for (let [idx, input] of inputs.entries()) {
+    const res = e.transform(input);
+    t.equal( res, expected[idx], `step ${idx+1}/${inputs.length} ${JSON.stringify(input)}` );
+  }
+});
