@@ -17,6 +17,7 @@ const default_options = {
   'synonym_marker': '@',
   'asterisk_marker': '*',
   'stop_chars': '.,;:?!',
+  'stop_words': ['but'],
   'allow_chars': '\'äöüß',
   'fallback_reply': 'I am at a loss for words.',
   'none_keyword': 'xnone',
@@ -127,6 +128,8 @@ function normalize_input(text, options) {
   text = util.contract_ws(text);
   const stop_pattern = '[' + util.regex_escape(options.stop_chars) + ']';
   text = text.replace(new RegExp(stop_pattern, 'g'), '.');
+  const stop_word_pattern = '\\b(' + options.stop_words.map(util.regex_escape).join('|') + ')\\b';
+  text = text.replace(new RegExp(stop_word_pattern, 'g'), '.');
   return text;
 }
 
@@ -306,7 +309,6 @@ export async function make_eliza(options = {}) {
         const reasmb = rule.reasmb[reasmb_idx];
         rule.lastIndex = reasmb_idx;
         log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));
-        // console.log('reasmb chosen', reasmb_idx, reasmb);
         // detect goto directive
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_keyword) + ' (\\S+)');
         const goto_match = reasmb.match(goto_regex);
@@ -326,11 +328,14 @@ export async function make_eliza(options = {}) {
           // post-process param value
           const post_regex = new RegExp(script.post_pattern, 'g');
           const val_post = val.replace(post_regex, (match, p1) => script.post[p1]);
-          console.log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
+          log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
           return val_post;
         });
-        if (rule.mem_flag) mem_push(reply);
-        return reply;
+        if (rule.mem_flag) {
+          mem_push(reply); // don't use this reply now, save it
+          log('reply memorized: ', JSON.stringify(reply));
+        }
+        else return reply;
       }
     }
     return '';
