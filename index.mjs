@@ -131,6 +131,8 @@ function normalize_input(text, options) {
 }
 
 function parse_script(script, options, log) {
+  script = Object.assign({}, script); // make a new object (don't alter incoming)
+  
   // check for keywords or install empty structure to prevent any errors
   if ( !script.keywords || !Array.isArray(script.keywords || script.keywords.length == 0) ) {
     script.keywords = [['###',0,[['###',[]]]]];
@@ -208,6 +210,8 @@ function parse_script(script, options, log) {
   if (!script.final || !Array.isArray(script.final)) {
     script.final = [''];
   }
+  
+  return script;
 }
 
 
@@ -228,11 +232,12 @@ export async function make_eliza(options = {}) {
   const rnd = new Math.seedrandom(seed);
   
   // load script
-  const script = (await import(options.script)).default;
+  // this import will only happen once over multiple make_eliza() calls. don't alter it.
+  const script_raw = (await import(options.script)).default;
   
   // parse script and convert it from canonical form to internal use
-  parse_script(script, options, log);
-
+  const script = parse_script(script_raw, options, log);
+  
   // variables
   let quit, mem;
   // let last_choice;
