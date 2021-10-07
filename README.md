@@ -43,11 +43,12 @@ import { make_eliza } from './node_modules/eliza-js/index.mjs';
 (async () => {
   const eliza = await make_eliza();
   
-  console.log( eliza.start() );
+  console.log( 'Eliza: ' + eliza.get_initial() );
   
   while ( ! eliza.is_quit() ) {
     const input = await GET_USER_INPUT();
-    console.log( eliza.transform(input) );
+    console.log( 'You:   ' + input )''
+    console.log( 'Eliza: ' + eliza.transform(input) );
   }
 
 })();
