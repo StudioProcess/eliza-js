@@ -117,10 +117,12 @@ function decomp_to_regex(decomp, options) {
 }
 
 function normalize_input(text, options) {
-  text = text.toLowerCase();
+  // DO NOT lowercase (preserve capitalization for output)
+  // text = text.toLowerCase();
+  
   // ignore all characters that arent explicitly allowed
-  // a-z and space are always allowed
-  const ignore_pattern = '[^a-z ' 
+  // A-Z and space are always allowed
+  const ignore_pattern = '[^a-zA-Z ' 
     + util.regex_escape(options.allow_chars)
     + util.regex_escape(options.stop_chars)
     + ']';
@@ -299,7 +301,7 @@ export async function make_eliza(options = {}) {
     // iterate through all rules in the keyword (decomp -> reasmb)
     for (const [idx, rule] of keyword.rules.entries()) {
       // check if decomp rule matches input
-      const decomp_regex = new RegExp(rule.decomp_regex);
+      const decomp_regex = new RegExp(rule.decomp_regex, 'i');
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
         log('rule ' + idx + ' matched:', rule)
@@ -357,8 +359,8 @@ export async function make_eliza(options = {}) {
         return get_final();
       }
       // pre-process
-      const pre_regex = new RegExp(script.pre_pattern, 'g');
-      part = part.replace(pre_regex, (match, p1) => script.pre[p1]);
+      const pre_regex = new RegExp(script.pre_pattern, 'gi');
+      part = part.replace(pre_regex, (match, p1) => script.pre[p1.toLowerCase()]);
       
       // look for keywords
       for (const keyword of script.keywords_new) {
