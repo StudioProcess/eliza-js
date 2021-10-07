@@ -98,7 +98,7 @@ Returns:
 An eliza instance is an object with the following functions:
 * [get_initial()](#get_initial)
 * [transform(text)](#transformtext)
-* [transform_delay(text, delay)](#transform_delaytext_delay)
+* [transform_delay(text, delay)](#transform_delaytext-delay)
 * [is_quit()](#is_quit)
 * [reset()](#reset)
 * [get_options()](#get_options)
