@@ -1,6 +1,7 @@
 import tap from 'tap';
 import seedrandom from 'seedrandom';
 import { make_eliza } from '../index.mjs';
+import { readFileSync } from 'fs';
 
 const rng = new seedrandom(0);
 /**
@@ -185,3 +186,148 @@ tap.test('example conversation', {bail:true}, async t => {
     t.equal( res, expected[idx], `step ${idx+1}/${inputs.length} ${JSON.stringify(input)}` );
   }
 });
+
+
+tap.test('parry vs. eliza', {bail:true}, async t => {
+  // const data = readFileSync('./test/data/rfc439.txt', {encoding: 'utf8'});
+  // const data_answers = readFileSync('./test/data/rfc439_answers.txt', {encoding: 'utf8'});
+  // let parry = data.split('\n').filter(x => x.startsWith('   *')).map(x => x.substring(4));
+  // let expected = data_answers.split('\n').filter(x => x.startsWith('ELIZA: ')).map(x => x.substring(7));
+  // console.log(parry);
+  // console.log(expected);
+  const parry = [
+    'People get on my nerves sometimes.',
+    'You should pay more attention.',
+    "You're entitled to your own opinion.",
+    'It bothers me just to be around people in general.',
+    'I went to the track at Bay Meadows a while back.',
+    'I went to the races.',
+    'Horseracing interests me.',
+    "There's a lot of crooked gambling going on there.",
+    "It's clear to me if not to you.",
+    'I went to the races.',
+    'I gamble on horses.',
+    'I went to the races.',
+    'Gambling has been nothing but trouble to me.',
+    "I've had experience with crooks gambling at the track.",
+    "I've already told you enough about that.",
+    'I went to the races.',
+    'Do you know anything about bookies?',
+    "A bookie didn't pay me off once.",
+    'I beat up the bookie who did not pay off, and I thought he might use',
+    'What do you know about racketeers?',
+    'What experience have you had gambling?',
+    'I like horseraces.',
+    'I know the mob controls the big rackets.',
+    'Have you ever really thought about the MAFIA?',
+    "Let's talk about something else.",
+    'You keep asking me the same things, why not change the topic?',
+    'What do you mean?',
+    'I thought I told you, people get on my nerves.',
+    "Well, I don't know.",
+    'I would say so.',
+    'I would rather not discuss that anymore.',
+    'I guess so.',
+    'What are you getting at?',
+    "It's not a matter or like or dislike.",
+    'I am getting tired of answering the same questions over and over.',
+    'Why do you need to know that?',
+    "I don't understand your motives.",
+    "Shouldn't I be?",
+    "That's just the way it is.",
+    'So?',
+    'You harp on the same questions too much.',
+    "I don't get you.",
+    "It's about time you showed some interest in my feelings.",
+    'I will help you if I trust you.',
+    'Maybe yes, maybe no.',
+    'Really?',
+    'In my opinion you have a one-track mind.',
+    'I used to go to the track every week.',
+    'I avoid racetracks now because the races are fixed.',
+    "I'd rather not discuss it.",
+    "That's something I don't want to go into.",
+    'I went to the races.',
+    "It's none of your business.",
+    "I don't confide in strangers.",
+    "Let's change the subject.",
+    'I went to the races.',
+    "What's wrong with you that you keep on bugging me about this?",
+    'The way you repeat yourself is getting ridiculous.',
+    'There are some tricky operators down there.',
+    'The guys involved in the horseracing racket.',
+    'You are a real nag.',
+    'I have had enough of this.',
+  ];
+  const expected = [
+    'Your nerves sometimes ?',
+    'We were discussing you -- not me.',
+    'What makes you think I am entitled to my own opinion ?',
+    'Does that have anything to do with the fact that your nerves sometimes ?',
+    'You say you went to the track at bay meadows a while back ?',
+    'Can you elaborate on that ?',
+    "I'm not sure I understand you fully.",
+    'Please go on.',
+    "Do you think it's likely that not to I ?",
+    'Do you say you went to the races for some special reason ?',
+    "That's quite interesting.",
+    'You say you went to the races ?',
+    'What does that suggest to you ?',
+    'Can you elaborate on that ?',
+    "Perhaps in your fantasies we 've already told each other.",
+    'Do you say you went to the races for some special reason ?',
+    'Oh, I know anything about bookies ?',
+    'Do you feel strongly about discussing such things ?',
+    "That's quite interesting.",
+    "You're not really talking about me -- are you ?",
+    'What are your feelings now ?',
+    'You say you like horseraces ?',
+    'Can you elaborate on that ?',
+    'We were discussing you -- not me.',
+    'That is interesting. Please continue.',
+    'In what way ?',
+    'Oh, I mean ?',
+    'Do you wish to told me ?',
+    "Don't you really know ?",
+    'Do you say you would say so for some special reason ?',
+    "That's quite interesting.",
+    'You say you guess so ?',
+    'Why are you interested in whether I am getting at or not ?',
+    'Tell me more about that.',
+    'What resemblence do you see ?',
+    "You're not really talking about me -- are you ?",
+    'Why are you concerned over my motives ?',
+    'Can you elaborate on that ?',
+    'Does talking about this bother you ?',
+    "I'm not sure I understand you fully.",
+    'What does that similarity suggest to you ?',
+    "Why don't you get I ?",
+    'Why do you say your feelings ?',
+    'Do you wish that you trust I ?',
+    "You don't seem quite certain.",
+    'Lets discuss further why your feelings.',
+    'Does that suggest anything else which belongs to you ?',
+    'Do you say you used to go to the track every week for some special reason ?',
+    'Did you think they might not be fixed ?',
+    "That's quite interesting.",
+    'Do you wish to be able to want to go into ?',
+    'You say you went to the races ?',
+    'What about your own business ?',
+    'Does that trouble you ?',
+    'Earlier you said your opinion I have a one-track mind.',
+    'Can you elaborate on that ?',
+    'Why do you think I keep on bugging you ?',
+    'What are your feelings now ?',
+    'Would you like it if they were not some tricky operators down there ?',
+    'Please go on.',
+    'Does it please you to believe I am a real nag ?',
+    'Do you say you have had enough of this for some special reason ?',
+  ];
+
+  const e = await make_eliza({ seed:0, randomize_choices:false, debug:false });
+  for (let [idx, input] of parry.entries()) {
+    const res = e.transform(input);
+    t.equal( res, expected[idx], `line ${idx+1}: ` + JSON.stringify(input) );
+  }
+});
+

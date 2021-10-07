@@ -124,7 +124,7 @@ export default {
         "Please go on.",
         "What does that suggest to you ?",
         "Do you feel strongly about discussing such things ?",
-        "That is interesting.  Please continue.",
+        "That is interesting. Please continue.",
         "Tell me more about that.",
         "Does talking about this bother you ?"
       ]]

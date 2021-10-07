@@ -269,7 +269,7 @@ ElizaBot.prototype._execRule = function(k) {
 				ri= ++this.lastchoice[k][i];
 				if (ri>=reasmbs.length) {
 					ri=0;
-					this.lastchoice[k][i]=-1;
+					this.lastchoice[k][i]=0; // FIX: don't do the first item twice, when wrapping around
 				}
 			}
 			else {

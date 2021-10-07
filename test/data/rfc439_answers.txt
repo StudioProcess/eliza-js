@@ -1,0 +1,126 @@
+USER:  People get on my nerves sometimes.
+ELIZA: Your nerves sometimes ?
+USER:  You should pay more attention.
+ELIZA: We were discussing you -- not me.
+USER:  You're entitled to your own opinion.
+ELIZA: What makes you think I am entitled to my own opinion ?
+USER:  It bothers me just to be around people in general.
+ELIZA: Does that have anything to do with the fact that your nerves sometimes ?
+USER:  I went to the track at Bay Meadows a while back.
+ELIZA: You say you went to the track at bay meadows a while back ?
+USER:  I went to the races.
+ELIZA: Can you elaborate on that ?
+USER:  Horseracing interests me.
+ELIZA: I'm not sure I understand you fully.
+USER:  There's a lot of crooked gambling going on there.
+ELIZA: Please go on.
+USER:  It's clear to me if not to you.
+ELIZA: Do you think it's likely that not to I ?
+USER:  I went to the races.
+ELIZA: Do you say you went to the races for some special reason ?
+USER:  I gamble on horses.
+ELIZA: That's quite interesting.
+USER:  I went to the races.
+ELIZA: You say you went to the races ?
+USER:  Gambling has been nothing but trouble to me.
+ELIZA: What does that suggest to you ?
+USER:  I've had experience with crooks gambling at the track.
+ELIZA: Can you elaborate on that ?
+USER:  I've already told you enough about that.
+ELIZA: Perhaps in your fantasies we 've already told each other.
+USER:  I went to the races.
+ELIZA: Do you say you went to the races for some special reason ?
+USER:  Do you know anything about bookies?
+ELIZA: Oh, I know anything about bookies ?
+USER:  A bookie didn't pay me off once.
+ELIZA: Do you feel strongly about discussing such things ?
+USER:  I beat up the bookie who did not pay off, and I thought he might use
+ELIZA: That's quite interesting.
+USER:  What do you know about racketeers?
+ELIZA: You're not really talking about me -- are you ?
+USER:  What experience have you had gambling?
+ELIZA: What are your feelings now ?
+USER:  I like horseraces.
+ELIZA: You say you like horseraces ?
+USER:  I know the mob controls the big rackets.
+ELIZA: Can you elaborate on that ?
+USER:  Have you ever really thought about the MAFIA?
+ELIZA: We were discussing you -- not me.
+USER:  Let's talk about something else.
+ELIZA: That is interesting. Please continue.
+USER:  You keep asking me the same things, why not change the topic?
+ELIZA: In what way ?
+USER:  What do you mean?
+ELIZA: Oh, I mean ?
+USER:  I thought I told you, people get on my nerves.
+ELIZA: Do you wish to told me ?
+USER:  Well, I don't know.
+ELIZA: Don't you really know ?
+USER:  I would say so.
+ELIZA: Do you say you would say so for some special reason ?
+USER:  I would rather not discuss that anymore.
+ELIZA: That's quite interesting.
+USER:  I guess so.
+ELIZA: You say you guess so ?
+USER:  What are you getting at?
+ELIZA: Why are you interested in whether I am getting at or not ?
+USER:  It's not a matter or like or dislike.
+ELIZA: Tell me more about that.
+USER:  I am getting tired of answering the same questions over and over.
+ELIZA: What resemblence do you see ?
+USER:  Why do you need to know that?
+ELIZA: You're not really talking about me -- are you ?
+USER:  I don't understand your motives.
+ELIZA: Why are you concerned over my motives ?
+USER:  Shouldn't I be?
+ELIZA: Can you elaborate on that ?
+USER:  That's just the way it is.
+ELIZA: Does talking about this bother you ?
+USER:  So?
+ELIZA: I'm not sure I understand you fully.
+USER:  You harp on the same questions too much.
+ELIZA: What does that similarity suggest to you ?
+USER:  I don't get you.
+ELIZA: Why don't you get I ?
+USER:  It's about time you showed some interest in my feelings.
+ELIZA: Why do you say your feelings ?
+USER:  I will help you if I trust you.
+ELIZA: Do you wish that you trust I ?
+USER:  Maybe yes, maybe no.
+ELIZA: You don't seem quite certain.
+USER:  Really?
+ELIZA: Lets discuss further why your feelings.
+USER:  In my opinion you have a one-track mind.
+ELIZA: Does that suggest anything else which belongs to you ?
+USER:  I used to go to the track every week.
+ELIZA: Do you say you used to go to the track every week for some special reason ?
+USER:  I avoid racetracks now because the races are fixed.
+ELIZA: Did you think they might not be fixed ?
+USER:  I'd rather not discuss it.
+ELIZA: That's quite interesting.
+USER:  That's something I don't want to go into.
+ELIZA: Do you wish to be able to want to go into ?
+USER:  I went to the races.
+ELIZA: You say you went to the races ?
+USER:  It's none of your business.
+ELIZA: What about your own business ?
+USER:  I don't confide in strangers.
+ELIZA: Does that trouble you ?
+USER:  Let's change the subject.
+ELIZA: Earlier you said your opinion I have a one-track mind.
+USER:  I went to the races.
+ELIZA: Can you elaborate on that ?
+USER:  What's wrong with you that you keep on bugging me about this?
+ELIZA: Why do you think I keep on bugging you ?
+USER:  The way you repeat yourself is getting ridiculous.
+ELIZA: What are your feelings now ?
+USER:  There are some tricky operators down there.
+ELIZA: Would you like it if they were not some tricky operators down there ?
+USER:  The guys involved in the horseracing racket.
+ELIZA: Please go on.
+USER:  You are a real nag.
+ELIZA: Does it please you to believe I am a real nag ?
+USER:  I have had enough of this.
+ELIZA: Do you say you have had enough of this for some special reason ?
+USER:  Goodbye.
+ELIZA: Maybe we could discuss this moreover in our next session ?   Goodbye.

@@ -18,7 +18,7 @@ const default_options = {
   'asterisk_marker': '*',
   'stop_chars': '.,;:?!',
   'stop_words': ['but'],
-  'allow_chars': '\'äöüß',
+  'allow_chars': '\'äöüß-',
   'fallback_reply': 'I am at a loss for words.',
   'none_keyword': 'xnone',
   'goto_keyword': 'goto',
@@ -91,12 +91,6 @@ function decomp_to_regex(decomp, options) {
   const as = util.regex_escape(options.asterisk_marker);
   const asre = new RegExp(`\\s*${as}\\s*`, 'g');
   let out = decomp.replace(asre, (match, offset, string) => {
-    // if (offset == 0) {
-    //   if (offset + match.length == string.length) return '\\s*(.*)\\s*';
-    //   return '\\s*(.*)\\s*\\b';
-    // }
-    // return '\\b\\s*(.*)\\s*'
-    
     /*
       Note: This crashes node/chrome (v8); See branch v8-crash
       capture words with whitespace in-between (or the empty string)
@@ -108,7 +102,16 @@ function decomp_to_regex(decomp, options) {
     // return '\\s*((?:\\s*\\S+)*)\\s*'; 
     
     // Note: this can include trailing whitespace into the capture group -> trim later
-    return '\\s*(.*)\\s*';
+    // return '\\s*(.*)\\s*';
+    
+    // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
+    // Note: this can include trailing whitespace into the capture group -> trim later
+    let pattern = '\\s*(.*)\\s*';
+    if (match.length !== string.length) { // there's more than the match
+      if (offset == 0) pattern = pattern + '\\b'; // append word boundary marker
+      else pattern = '\\b' + pattern; // prepend word boundary marker
+    }
+    return pattern;
   });
   // expand whitespace
   // TODO: remove dependency on this, by preprocessing whitespace
@@ -117,8 +120,8 @@ function decomp_to_regex(decomp, options) {
 }
 
 function normalize_input(text, options) {
-  // DO NOT lowercase (preserve capitalization for output)
-  // text = text.toLowerCase();
+  // TODO(?): DO NOT lowercase (preserve capitalization for output)
+  text = text.toLowerCase();
   
   // ignore all characters that arent explicitly allowed
   // A-Z and space are always allowed
@@ -186,7 +189,7 @@ function parse_script(script, options, log) {
   } else {
     script.pre = {'####': '####'}; // default (should not match)
   }
-  script.pre = util.lowercase_obj(script.pre);
+  script.pre = util.lowercase_obj_keys(script.pre);
   script.pre_pattern = `\\b(${Object.keys(script.pre).map(util.regex_escape).join('|')})\\b`;
   if (script.post && Array.isArray(script.post)) {
     const obj = {};
@@ -198,7 +201,7 @@ function parse_script(script, options, log) {
   } else {
     script.post = {'####': '####'}; // default (should not match)
   }
-  script.post = util.lowercase_obj(script.post);
+  script.post = util.lowercase_obj_keys(script.post);
   script.post_pattern = `\\b(${Object.keys(script.post).map(util.regex_escape).join('|')})\\b`;
   
   // check for quit and install default if missing
@@ -328,8 +331,8 @@ export async function make_eliza(options = {}) {
           if (val === undefined) return '';
           val = val.trim();
           // post-process param value
-          const post_regex = new RegExp(script.post_pattern, 'g');
-          const val_post = val.replace(post_regex, (match, p1) => script.post[p1]);
+          const post_regex = new RegExp(script.post_pattern, 'gi');
+          const val_post = val.replace(post_regex, (match, p1) => script.post[p1.toLowerCase()]);
           log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
           return val_post;
         });
