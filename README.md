@@ -70,7 +70,9 @@ Note that the function is async, since it needs to dynamically load the script f
 Params:
 * `options`: (optional) object containing one or more of the following options
     * `debug`: (default `false`)
-    * `script`: (default `./script.mjs`)
+    * `debug_options`: (default `false`)
+    * `debug_script`: (default `false`)
+    * `script`: (default `'./script.mjs'`)
     * `mem_size`: (default `20`)
     * `seed`: (default `-1`)
     * `randomize_choices`: (default `false`)
@@ -79,7 +81,8 @@ Params:
     * `synonym_marker`: (default `@`)
     * `asterisk_marker`: (default `'*'`)
     * `stop_chars`: (default `'.,;:?!'`)
-    * `allow_chars`: (default `'\'äöüß'`)
+    * `stop_words`: (default `['but']`)
+    * `allow_chars`: (default `'\'äöüß-'`)
     * `fallback_reply`: (default `'I am at a loss for words.'`)
     * `none_keyword`: (default `'xnone'`)
     * `goto_keyword`: (default `'goto'`)
@@ -93,16 +96,57 @@ Returns:
 
 An eliza instance is an object with the following functions:
 * [get_initial()](#getinitial)
-* [start()](#start)
 * [transform(text)](#transformtext)
 * [is_quit()](#isquit)
 * [reset()](#reset)
 * [get_options()](#getoptions)
 
 ### get_initial()
-or
-### start()
+
+Get an initial greeting from Eliza. Use at the beginning of the conversation.
+
+Params:
+* None
+
+Returns:
+* String. Initial sentence from Eliza.
+
 ### transform(text)
+
+To talk to Eliza, an input text is 'transformed' into a reply. Use to get Eliza's replies to user inputs.
+
+Params:
+* `text`: The input sentence.
+
+Returns:
+* String. Eliza's response.
+
 ### is_quit()
+
+Check if a quit phrase (like 'goodbye') has been encountered since the start of the conversation. Call after every [transform()](#transformtext) to check if a quit condition has been reached, in which case the conversation should be stopped.
+
+Params:
+* None
+
+Returns:
+* Boolean. `true` if a quit condition has been encountered so far, `false` otherwise.
+
 ### reset()
+
+Reset Eliza's internal state to initial conditions. Use to start a new conversation without creating a new chatbot instance (which reloads and reparses the script).
+
+Params:
+* None
+
+Returns:
+* None
+
 ### get_options()
+
+Retrieve options object used to construct the chatbot instance. See [make_eliza()](#makeelizaoptions).
+
+Params:
+* None
+
+Returns:
+* The options object.
