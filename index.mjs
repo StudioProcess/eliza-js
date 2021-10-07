@@ -235,9 +235,7 @@ export async function make_eliza(options = {}) {
   // add a dir function as property
   log.dir = options.debug ? console.dir : () => {}; 
   
-  // initialize rng
   const seed = options.seed < 0 ? undefined : options.seed;
-  const rnd = new Math.seedrandom(seed);
   
   // load script
   // this import will only happen once over multiple make_eliza() calls. don't alter it.
@@ -247,12 +245,13 @@ export async function make_eliza(options = {}) {
   const script = parse_script(script_raw, options, log);
   
   // variables
-  let quit, mem;
+  let quit, mem, rnd;
   // let last_choice;
   
   function reset() {
     quit = false;
     mem = [];
+    rnd = new Math.seedrandom(seed); // initialize rng
     // last_choice = [];
     // for (let k = 0; k < script.keywords.length; k++) {
     //   last_choice[k] = [];
