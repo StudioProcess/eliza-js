@@ -45,9 +45,15 @@
       out.textContent = '';
     }
     
-    function submit(text) {
+    function submit(text, immediate=true) {
       print('  You: ' + text);
-      print('ELIZA: ' + eliza.transform(text));
+      if (immediate) {
+        print('ELIZA: ' + eliza.transform(text));
+      } else {
+        eliza.transform_delay(text).then(response => {
+          print('ELIZA: ' + response);
+        });
+      }
       inputs.push(text);
       history_idx = -1;
       out.scrollTop = out.scrollHeight;
@@ -59,6 +65,7 @@
       inp.value = '';
       if (text == '') return;
       submit(text);
+      // submit(text, false); // submit with delay
     }
     
     function history(offset) {

@@ -392,6 +392,16 @@ export async function make_eliza(options = {}) {
     return options.fallback_reply;
   }
   
+  function transform_delay(text, delay=[1,3]) {
+    const response = transform(text);
+    if (Array.isArray(delay)) {
+      delay = delay[0] + rnd() * (delay[1] - delay[0]);
+    }
+    return new Promise( (resolve, reject) => {
+      setTimeout(() => { resolve(response); }, delay*1000);
+    });
+  }
+  
   reset();
   
   // log script after reset (last choice computed)
@@ -402,6 +412,7 @@ export async function make_eliza(options = {}) {
   return {
     get_initial,
     transform,
+    transform_delay,
     is_quit,
     reset,
     get_options,
