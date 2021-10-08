@@ -6,10 +6,12 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "browser-sync . --watch --no-notify",
-    "test": "tap",
-    "test-only": "tap --only",
+    "test": "tap test/",
+    "test-only": "tap test/ --only",
     "build": "rollup index.mjs --file eliza.mjs --format es --silent",
-    "elizabot": "browser-sync elizabot --no-notify"
+    "elizabot": "browser-sync old/elizabot --no-notify",
+    "dev-old": "browser-sync . --watch --no-notify --startPath old/",
+    "test-old": "tap old/test/"
   },
   "keywords": [],
   "author": "Martin Grödl <martin@process.studio> (https://process.studio)",
