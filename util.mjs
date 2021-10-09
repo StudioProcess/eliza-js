@@ -39,8 +39,12 @@ export function check_object(script, prop, allow_types=null) {
   }
 }
 
-export function contract_whitespace(str, replacement=' ') {
+export function replace_whitespace(str, replacement='_') {
   return str.trim().replace(/\s+/g, replacement);
+}
+
+export function contract_whitespace(str) {
+  return replace_whitespace(str, ' ');
 }
 
 // https://stackoverflow.com/a/6969486
@@ -64,4 +68,8 @@ export function map_obj_keys(obj, fn) {
 //     Object.entries(obj).map( ([k, v]) => fn(k,v) )
 //   );
 // }
+
+export function rnd_int(max, func=Math.random) {
+  return Math.floor(func() * max);
+}
 

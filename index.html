@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>eliza-js</title>
+  <style>
+    #output { overflow:scroll; height:calc(100vh - 60px); }
+    input[type=text], button { border:1px solid black; }
+    input[type=text] { height:16px; }
+    #input { width:40vw;}
+    #bottom { position:absolute; bottom:10px; }
+    #bottom-right { position:absolute; bottom:10px; right:10px }
+    label { font-family:system-ui; font-size:11px; }
+  </style>
+</head>
+<body>
+  <pre id="output"></pre>
+  <div id="bottom">
+    <input type="text" id="input"></input><button id="submit">Submit</button>
+  </div>
+  <div id="bottom-right">
+    <label for="script">Script</label> <input type="text" id="script" name="script"></input><button id="reset">Reset</button><button id="replay">Reset & Replay</button>
+  </div>
+  <script type="module">
+    
+    import { make_eliza } from './index.mjs';
+    
+    const out = document.querySelector('#output');
+    const inp = document.querySelector('#input');
+    const inp_script = document.querySelector('#script');
+    
+    let eliza, inputs, history_idx, history_saved_input;
+    
+    function print(text) {
+      if (text == undefined) text = '';
+      if (typeof text != 'string') {
+        text = JSON.stringify(text, '', 2);
+      }
+      out.textContent += text + '\n';
+    }
+    
+    function clear() {
+      out.textContent = '';
+    }
+    
+    function submit(text, immediate=true) {
+      print('  You: ' + text);
+      if (immediate) {
+        print('ELIZA: ' + eliza.transform(text));
+      } else {
+        eliza.transform_delay(text).then(response => {
+          print('ELIZA: ' + response);
+        });
+      }
+      inputs.push(text);
+      history_idx = -1;
+      out.scrollTop = out.scrollHeight;
+      inp.focus();
+    }
+    
+    function onSubmit() {
+      let text = inp.value.trim();
+      inp.value = '';
+      if (text == '') return;
+      submit(text);
+      // submit(text, false); // submit with delay
+    }
+    
+    function history(offset) {
+      if (inputs.length == 0) return;
+      if (history_idx < 0) {
+        history_idx = inputs.length; // start after last input
+        history_saved_input = inp.value; // save current input
+      }
+      history_idx += offset;
+      if (history_idx < 0) history_idx = 0;
+      
+      if (history_idx >= inputs.length) {
+        inp.value = history_saved_input; // retrieve saved input
+        history_idx = -1;
+      } else {
+        inp.value = inputs[history_idx]; // retrieve history
+      }
+    }
+    
+    async function load_script(path) {
+      try {
+        script = (await import(path)).default;
+      } catch (e) {
+        return { success:false, error:e, script:null };
+      }
+      return { success:true, error:null, script };
+    }
+    
+    async function reset(seed = undefined) {
+      if (seed == undefined) {
+        seed = Date.now();
+      }
+      
+      clear();
+      print('eliza-js');
+      print(new Date().toISOString());
+      print();
+      
+      const load_result = await load_script(inp_script.value);
+      if ( !load_result.success ) {
+        print('error loading script: ' + inp_script.value);
+        const e = load_result.error;
+        console.error(e);
+        print(e.name + ': ' + e.message);
+        if ('sourceURL' in e) print('  file: ' + e.sourceURL);
+        if ('line' in e)      print('  line: ' + e.line);
+        if ('column' in e)    print('  column: ' + e.column);
+        return false;
+      }
+      
+      eliza = await make_eliza( load_result.script, {seed} );
+      set_script_path(inp_script.value);
+      inputs = [];
+      history_idx = -1;
+      history_saved_input = '';
+      print(eliza.get_options());
+      print();
+      print('ELIZA: ' + eliza.get_initial());
+      inp.focus();
+      return true;
+    }
+    
+    async function replay() {
+      let _inputs = inputs;
+      const reset_success = await reset(eliza.get_config().seed);
+      if (reset_success) {
+        console.log('replaying', _inputs)
+        for (const text of _inputs) {
+          submit(text);
+        }
+      }
+    }
+    
+    function get_script_path() {
+      let path = localStorage.getItem('script_path');
+      if (!path) path = './script.mjs';
+      return path;
+    }
+    
+    function set_script_path(path) {
+      localStorage.setItem('script_path', path);
+    }
+    
+    document.querySelector('#submit').addEventListener('click', (e) => {
+      onSubmit();
+    });
+    
+    input.addEventListener('keydown', (e) => {
+      if (e.key == 'Enter') onSubmit();
+      else if (e.key == 'ArrowUp') { history(-1); e.preventDefault(); }
+      else if (e.key == 'ArrowDown') { history(1); e.preventDefault(); }
+    });
+    
+    document.querySelector('#reset').addEventListener('click', (e) => {
+      reset();
+    });
+    
+    document.querySelector('#replay').addEventListener('click', (e) => {
+      replay();
+    });
+    
+    inp_script.value = get_script_path();
+    
+    await reset();
+    
+  </script>
+</body>
+</html>
