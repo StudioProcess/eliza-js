@@ -14,7 +14,7 @@ const default_options = {
   
   'memory_marker': '$',
   'tag_marker': '@',
-  'asterisk_marker': '*',
+  'wildcard_marker': '*',
   'goto_marker': '->',
   'param_marker_pre': '(',
   'param_marker_post': ')',
@@ -39,8 +39,24 @@ export function parse_key(key) {
   return { 'key': key, 'rank': 0 };
 }
 
+function get_decomp_pattern(decomp, wildcard_marker='*') {
+  // expand wildcard expressions
+  const asre = new RegExp( `\\s*${util.regex_escape(wildcard_marker)}\\s*`, 'g' );
+  let out = decomp.replace(asre, (match, offset, string) => {
+    // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
+    // Note: this can include trailing whitespace into the capture group -> trim later
+    let pattern = '\\s*(.*)\\s*'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
+    if (match.length !== string.length) { // there's more than the match
+      if (offset == 0) pattern = pattern + '\\b'; // append word boundary marker
+      else pattern = '\\b' + pattern; // prepend word boundary marker
+    }
+    return pattern;
+  });
+  return out;
+}
+
 // Note: key, decomp and reasmb patters are treated with contract_whitespce
-export function parse_keyword(keywords, key) {
+export function parse_keyword(keywords, key, options) {
   const rules = keywords[key];
   const out = {};
   Object.assign( out, parse_key(key) ); // adds key and rank properties to output
@@ -52,28 +68,32 @@ export function parse_keyword(keywords, key) {
       "decomp": "*",
       "reasmb": [ util.contract_whitespace(rules) ]
     }];
-    return out;
-  }
-  // rules in an object: {decomp: [reasmb, ...], ...}
-  // check that it has only array or string values
-  util.check_object(keywords, key, ['array', 'string']);
-  out.rules = [];
-  for (const [decomp, reassemblies ] of Object.entries(rules)) {
-    // reasmb_rules can be array or string
-    if (util.type(reassemblies) === 'string') {
-      out.rules.push({
-        "decomp": util.contract_whitespace(decomp),
-        "reasmb": [ reassemblies ]
-      });
-    } else {
-      // reassamblies is an array
-      // check that it only has string values
-      util.check_array(rules, decomp, ['string']);
-      out.rules.push({
-        "decomp": util.contract_whitespace(decomp),
-        "reasmb": reassemblies.map(util.contract_whitespace)
-      });
+  } else {
+    // rules in an object: {decomp: [reasmb, ...], ...}
+    // check that it has only array or string values
+    util.check_object(keywords, key, ['array', 'string']);
+    out.rules = [];
+    for (const [decomp, reassemblies ] of Object.entries(rules)) {
+      // reasmb_rules can be array or string
+      if (util.type(reassemblies) === 'string') {
+        out.rules.push({
+          "decomp": util.contract_whitespace(decomp),
+          "reasmb": [ reassemblies ]
+        });
+      } else {
+        // reassamblies is an array
+        // check that it only has string values
+        util.check_array(rules, decomp, ['string']);
+        out.rules.push({
+          "decomp": util.contract_whitespace(decomp),
+          "reasmb": reassemblies.map(util.contract_whitespace)
+        });
+      }
     }
+  }
+  // add decomp patterns
+  for (const rule of out.rules) {
+    rule.decomp_pattern = get_decomp_pattern(rule.decomp, options.wildcard_marker);
   }
   return out;
 }
@@ -100,11 +120,11 @@ export function parse_script(script, options) {
   
   // pre
   util.check_object(script, 'pre', ['string']);
-  data.pre = script.pre;
+  data.pre = util.map_obj_keys(script.pre, util.contract_whitespace);
   
   // post
   util.check_object(script, 'post', ['string']);
-  data.post = script.post;
+  data.post = util.map_obj_keys(script.post, util.contract_whitespace);
   
   // tags
   util.check_object(script, 'tags', ['array']);
@@ -112,18 +132,40 @@ export function parse_script(script, options) {
   
   // keywords
   util.check_object(script, 'keywords', ['object', 'string']);
-  data.keywords = [];
-  for (const key of Object.keys(script.keywords)) {
-    data.keywords.push( parse_keyword(script.keywords, key) );
-  }
+  data.keywords = Object.keys(script.keywords).map( (key, idx) => {
+    const parsed_keyword = parse_keyword(script.keywords, key, options);
+    parsed_keyword.orig_idx = idx;
+    return parsed_keyword;
+  });
+  
+  // patterns (regexes)
+  data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
+  data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+  data.tag_patterns = Object.fromEntries(
+    Object.entries(data.tags).map( ([tag, tagged_words]) => {
+      return [ tag, '(' + tagged_words.map(util.regex_escape).join('|') + ')' ];
+    })
+  );
+  
+  // sort keywords
+  data.keywords.sort( (a,b) => {
+    // sort by rank
+    if ( a.rank > b.rank ) return -1;
+    else if ( a.rank < b.rank ) return 1;
+    // or original index
+    else if ( a.orig_idx > b.orig_idx ) return 1;
+    else if ( a.orig_idx < b.orig_idx ) return -1;
+    else return 0;
+  });
   
   return data;
 }
 
 
-export function make_eliza(script, options) {
-  options = Object.assign({}, default_options);
-  let data = parse_script(script, options);
+export function make_eliza(script, options={}) {
+  options = Object.assign({}, options, default_options);
+  const data = parse_script(script, options);
+  console.dir(data.keywords, {depth: 3});
   // console.log(data);
   
   // console.log( parse_key('hello 3.') );

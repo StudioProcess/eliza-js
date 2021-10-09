@@ -42,3 +42,26 @@ export function check_object(script, prop, allow_types=null) {
 export function contract_whitespace(str) {
   return str.trim().replace(/\s+/g, ' ');
 }
+
+// https://stackoverflow.com/a/6969486
+// added '-' to be escaped (for use in character classes)
+export function regex_escape(str) {
+  return str.replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&'); // $& means the whole matched string
+}
+
+// fn is a mapping function, which receives two parameters (key and value)
+// and returns a single value (mapped_key)
+export function map_obj_keys(obj, fn) {
+  return Object.fromEntries(
+    Object.entries(obj).map( ([k, v]) => [fn(k,v), v] ) // value is passed through, key is produced by mapping function
+  );
+}
+
+// // fn is a mapping function, which receives two parameters (key and value)
+// // and returns an array of two values [mapped_key, mapped_value];
+// export function map_obj(obj, fn) {
+//   return Object.fromEntries(
+//     Object.entries(obj).map( ([k, v]) => fn(k,v) )
+//   );
+// }
+

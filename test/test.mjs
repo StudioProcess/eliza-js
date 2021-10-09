@@ -144,3 +144,10 @@ tap.test("parse_script function", async t => {
   ];
   t.hasStrict(eliza.parse_script(script1), expected1);
 });
+
+
+tap.only("", async t => {
+  const script = (await import('../script.mjs')).default;
+  eliza.make_eliza(script);
+});
+
