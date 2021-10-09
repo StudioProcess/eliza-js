@@ -55,6 +55,13 @@ function get_decomp_pattern(decomp, wildcard_marker='*') {
   return out;
 }
 
+function set_mem_flag(obj, key, memory_marker) {
+  if ( obj[key].startsWith(memory_marker) ) {
+    obj[key] = obj[key].substring(memory_marker.length).trimStart();
+    obj.mem_flag = true;
+  }
+}
+
 // Note: key, decomp and reasmb patters are treated with contract_whitespce
 export function parse_keyword(keywords, key, options) {
   const rules = keywords[key];
@@ -94,6 +101,11 @@ export function parse_keyword(keywords, key, options) {
   // add decomp patterns
   for (const rule of out.rules) {
     rule.decomp_pattern = get_decomp_pattern(rule.decomp, options.wildcard_marker);
+  }
+  // add mem flags
+  set_mem_flag(out, 'key', options.memory_marker); // ... for the whole keyword
+  for (const rule of out.rules) {
+    set_mem_flag(rule, 'decomp', options.memory_marker); // ... for each decomp rule
   }
   return out;
 }
