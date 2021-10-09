@@ -39,8 +39,8 @@ export function check_object(script, prop, allow_types=null) {
   }
 }
 
-export function contract_whitespace(str) {
-  return str.trim().replace(/\s+/g, ' ');
+export function contract_whitespace(str, replacement=' ') {
+  return str.trim().replace(/\s+/g, replacement);
 }
 
 // https://stackoverflow.com/a/6969486

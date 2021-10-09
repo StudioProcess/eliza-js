@@ -13,7 +13,7 @@ const default_options = {
   'seed': -1,
   
   'memory_marker': '$',
-  'tag_marker': '@',
+  'tag_marker': '#',
   'wildcard_marker': '*',
   'goto_marker': '->',
   'param_marker_pre': '(',
@@ -39,10 +39,17 @@ export function parse_key(key) {
   return { 'key': key, 'rank': 0 };
 }
 
-function get_decomp_pattern(decomp, wildcard_marker='*') {
+function get_decomp_pattern(decomp, tag_patterns, tag_marker='#', wildcard_marker='*') {
+  // expand tags
+  const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'g' ); // match all tags eg. #happy in "* i am * #happy *"
+  let out = decomp.replace(tag_re, (match, p1) => {
+    if ( Object.keys(tag_patterns).includes(p1) ) return tag_patterns[p1]; // replace with tag regex pattern
+    return p1; // remove tag marker
+  });
+  
   // expand wildcard expressions
-  const asre = new RegExp( `\\s*${util.regex_escape(wildcard_marker)}\\s*`, 'g' );
-  let out = decomp.replace(asre, (match, offset, string) => {
+  const wild_re = new RegExp( `\\s*${util.regex_escape(wildcard_marker)}\\s*`, 'g' );
+  out = out.replace(wild_re, (match, offset, string) => {
     // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
     // Note: this can include trailing whitespace into the capture group -> trim later
     let pattern = '\\s*(.*)\\s*'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
@@ -62,8 +69,9 @@ function set_mem_flag(obj, key, memory_marker) {
   }
 }
 
+// Required options: wildcard_marker, memory_marker, tag_marker
 // Note: key, decomp and reasmb patters are treated with contract_whitespce
-export function parse_keyword(keywords, key, options) {
+export function parse_keyword(keywords, key, options, tag_patterns) {
   const rules = keywords[key];
   const out = {};
   Object.assign( out, parse_key(key) ); // adds key and rank properties to output
@@ -100,7 +108,7 @@ export function parse_keyword(keywords, key, options) {
   }
   // add decomp patterns
   for (const rule of out.rules) {
-    rule.decomp_pattern = get_decomp_pattern(rule.decomp, options.wildcard_marker);
+    rule.decomp_pattern = get_decomp_pattern(rule.decomp, tag_patterns, options.tag_marker, options.wildcard_marker);
   }
   // add mem flags
   set_mem_flag(out, 'key', options.memory_marker); // ... for the whole keyword
@@ -110,7 +118,7 @@ export function parse_keyword(keywords, key, options) {
   return out;
 }
 
-
+// Required options: wildcard_marker, memory_marker, 
 export function parse_script(script, options) {
   script = Object.assign({}, script);
   const data = {};
@@ -140,15 +148,7 @@ export function parse_script(script, options) {
   
   // tags
   util.check_object(script, 'tags', ['array']);
-  data.tags = script.tags;
-  
-  // keywords
-  util.check_object(script, 'keywords', ['object', 'string']);
-  data.keywords = Object.keys(script.keywords).map( (key, idx) => {
-    const parsed_keyword = parse_keyword(script.keywords, key, options);
-    parsed_keyword.orig_idx = idx;
-    return parsed_keyword;
-  });
+  data.tags = util.map_obj_keys(script.tags, x => util.contract_whitespace(x, '_')); // tags can't contain whitespace
   
   // patterns (regexes)
   data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
@@ -158,6 +158,14 @@ export function parse_script(script, options) {
       return [ tag, '(' + tagged_words.map(util.regex_escape).join('|') + ')' ];
     })
   );
+  
+  // keywords
+  util.check_object(script, 'keywords', ['object', 'string']);
+  data.keywords = Object.keys(script.keywords).map( (key, idx) => {
+    const parsed_keyword = parse_keyword(script.keywords, key, options, data.tag_patterns);
+    parsed_keyword.orig_idx = idx;
+    return parsed_keyword;
+  });
   
   // sort keywords
   data.keywords.sort( (a,b) => {
