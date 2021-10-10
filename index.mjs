@@ -12,12 +12,12 @@ const default_options = {
   'memory_size': 100,
   'seed': -1,
   
-  'memory_marker': '$',
+  'memory_marker': '+',
   'tag_marker': '#',
   'wildcard_marker': '*',
-  'goto_marker': '->',
-  'param_marker_pre': '(',
-  'param_marker_post': ')',
+  'goto_marker': '=',
+  'param_marker_pre': '$',
+  'param_marker_post': '',
   
   'stop_chars': '.,;:?!',
   'stop_words': ['but'],
