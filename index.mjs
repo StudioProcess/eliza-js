@@ -394,3 +394,7 @@ export function make_eliza(script, options={}) {
   };
 }
 
+export async function make_eliza_async(script_url, options={}) {
+  const script = (await import(script_url)).default;
+  return make_eliza(script, options);
+}

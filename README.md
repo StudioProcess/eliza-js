@@ -38,10 +38,10 @@ npm start
 ## Usage
 
 ```
-import { make_eliza } from './node_modules/eliza-js/index.mjs';
+import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
 
 (async () => {
-  const eliza = await make_eliza();
+  const eliza = await make_eliza_async('./script.mjs');
   
   console.log( 'Eliza: ' + eliza.get_initial() );
   
@@ -57,23 +57,25 @@ import { make_eliza } from './node_modules/eliza-js/index.mjs';
 
 ## Constructor
 
-To construct a chatbot instance call the [make_eliza()](#makeelizaoptions) function supplied by the library:
+To construct a chatbot instance call the [make_eliza_async()](#make_eliza_asyncscript_url-options) function supplied by the library:
 
 ```
-import { make_eliza } from './eliza-js/index.mjs';
-const eliza = await make_eliza();
+import { make_eliza_async } from './eliza-js/index.mjs';
+const eliza = await make_eliza_async('./script.mjs');
 ```
 
 Note that the function is async, since it needs to dynamically load the script file.
 
-### make_eliza(options)
+If you've got a script object already, you can use [make_eliza()](#make_elizascript-options) instead.
+
+### make_eliza_async(script_url, options)
 
 Params:
+* `script_url`: URL to script (.mjs with a default export, e.g. [script.mjs](script.mjs))
 * `options`: (optional) object containing one or more of the following options
     * `debug`: (default `false`)
     * `debug_options`: (default `false`)
     * `debug_script`: (default `false`)
-    * `script`: (default `'./script.mjs'`)
     * `mem_size`: (default `20`)
     * `seed`: (default `-1`)
     * `randomize_choices`: (default `false`)
@@ -92,6 +94,16 @@ Params:
 
 Returns: 
 * Promise that resolves with an [ElizaInstance](#elizainstance) object
+
+### make_eliza(script, options)
+
+Params:
+* `script`: script object (see e.g. the default export in [script.mjs](script.mjs))
+* `options`: (optional) see [make_eliza_async()](#make_eliza_asyncscript_url-options)
+
+Returns:
+* A new [ElizaInstance](#elizainstance) object
+
 
 ## ElizaInstance
 
@@ -125,7 +137,7 @@ Returns:
 
 ### transform_delay(text, delay)
 
-Asyncronous version of [transform](#transformtext), that adds a delay to Eliza's response.
+Asyncronous version of [transform()](#transformtext), that adds a delay to Eliza's response.
 
 Params:
 * `text`: The input sentence.
@@ -156,7 +168,7 @@ Returns:
 
 ### get_options()
 
-Retrieve options object used to construct the chatbot instance. See [make_eliza()](#makeelizaoptions).
+Retrieve options object used to construct the chatbot instance. See [make_eliza_async()](#make_eliza_asyncscript_url-options).
 
 Params:
 * None
