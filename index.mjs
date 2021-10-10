@@ -28,7 +28,7 @@ const default_options = {
 
 export function parse_key(key) {
   key = util.contract_whitespace("" + key);
-  const matches = key.match(/ (\d*)$/); // space followed by numbers at end of string
+  const matches = key.match(/ (-?\d*)$/); // space followed by numbers at end of string
   // -> needs a preceding whitespace, so a number alone will be (correctly) considered a key (default rank 0)
   if (matches) {
     return {
