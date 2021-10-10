@@ -135,15 +135,6 @@ export default {
     "same 10": "= dit",
     "certainly": "= yes",
     
-    "+ my": {
-      "* my *": [
-        "Lets discuss further why your $2.",
-        "Earlier you said your $2.",
-        "But your $2.",
-        "Does that have anything to do with the fact that your $2?",
-      ]
-    },
-    
     "perhaps": [
       "You don't seem quite certain.",
       "Why the uncertain tone?",
@@ -348,6 +339,12 @@ export default {
     ],
     
     "my 2": {
+      "@ * my *": [
+        "Lets discuss further why your $2.",
+        "Earlier you said your $2.",
+        "But your $2.",
+        "Does that have anything to do with the fact that your $2?",
+      ],
       "* my * #family *": [
         "Tell me more about your family.",
         "Who else in your family $4?",

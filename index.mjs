@@ -12,7 +12,7 @@ const default_options = {
   'memory_size': 100,
   'seed': -1,
   
-  'memory_marker': '+',
+  'memory_marker': '@',
   'tag_marker': '#',
   'wildcard_marker': '*',
   'goto_marker': '=',
@@ -121,7 +121,11 @@ export function parse_keyword(keywords, key, options, tag_patterns) {
   set_mem_flag(out, 'key', options.memory_marker); // ... for the whole keyword
   for (const rule of out.rules) {
     set_mem_flag(rule, 'decomp', options.memory_marker); // ... for each decomp rule
+    set_mem_flag(rule, 'decomp_pattern', options.memory_marker); // ... and pattern
+    // if the whole key has a mem flag, flag all the rules
+    if (out.mem_flag) rule.mem_flag = true;
   }
+
   return out;
 }
 
@@ -346,24 +350,35 @@ export function make_eliza(script, options={}) {
         if ( key_regex.test(part) ) {
           log('keyword found (part ' + idx + '):', keyword);
           const reply = exec_rule(keyword, part);
-          log('reply:', JSON.stringify(reply));
-          if (reply != '') return reply;
+          if (reply != '') {
+            log('reply:', JSON.stringify(reply));
+            return reply;
+          }
         }
       }
     }
     
     // nothing matched, try mem
+    log('no reply generated through keywords');
     let reply = mem_pop();
-    if (reply != '') return reply;
+    if (reply != '') {
+      log('using memorized reply:', JSON.stringify(reply));
+      return reply;
+    }
     
     // nothing in mem, try none
+    log('no reply memorized');
     if (data.none.length > 0) {
       if (++last_none >= data.none.length) last_none = 0;
       const reply = data.none[last_none];
-      if (reply != '') return reply;
+      if (reply != '') {
+        log('using none reply:', JSON.stringify(reply));
+        return reply;
+      }
     }
     
     // last resort
+    log('using fallback reply:', JSON.stringify(options.fallback_reply));
     return options.fallback_reply;
   }
   
