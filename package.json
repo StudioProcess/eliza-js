@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "npm run dev",
-    "dev": "browser-sync . --watch --no-notify",
+    "dev": "browser-sync . --no-notify",
     "test": "tap test/",
     "test-only": "tap test/ --only",
     "build": "rollup index.mjs --file eliza.mjs --format es --silent",

@@ -116,7 +116,7 @@
         return false;
       }
       try {
-        eliza = await make_eliza( load_result.script, {seed, debug:true} );
+        eliza = make_eliza( load_result.script, {seed, debug:true} );
       } catch (e) {
         print(e.name + ":");
         print(e.message);
@@ -136,7 +136,7 @@
     
     async function replay() {
       let _inputs = inputs;
-      const reset_success = await reset(eliza.get_config().seed);
+      const reset_success = await reset(eliza.get_options().seed);
       if (reset_success) {
         console.log('replaying', _inputs)
         for (const text of _inputs) {
