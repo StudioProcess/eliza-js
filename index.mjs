@@ -131,7 +131,7 @@ export function parse_script(script, options) {
   const data = {};
   
   // check script as a whole
-  if (typeof script !== 'object') throw 'script needs to be an object';
+  if (typeof script !== 'object') util.script_error('script needs to be an object');
   
   // initial
   util.check_array(script, 'initial', ['string']);
