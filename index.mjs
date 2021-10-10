@@ -76,12 +76,19 @@ export function parse_keyword(keywords, key, options, tag_patterns) {
   const out = {};
   Object.assign( out, parse_key(key) ); // adds key and rank properties to output
   
-  // rules can be object or string
-  // if string, it is interpreted as a single reassembly rule for a decomp of '*'
+  // rules can be object, array or string
   if (util.type(rules) == 'string') {
+    // if string, it is interpreted as a single reassembly rule for a decomp of '*'
     out.rules = [{
       "decomp": "*",
       "reasmb": [ util.contract_whitespace(rules) ]
+    }];
+  } else if (util.type(rules) == 'array') {
+    // if array, interpret as array of reassembly rules for a decomp of '*'
+    util.check_array(keywords, key, ['string']);
+    out.rules = [{
+      "decomp": "*",
+      "reasmb": rules.map(util.contract_whitespace)
     }];
   } else {
     // rules in an object: {decomp: [reasmb, ...], ...}
@@ -164,7 +171,7 @@ export function parse_script(script, options) {
   );
   
   // keywords
-  util.check_object(script, 'keywords', ['object', 'string']);
+  util.check_object(script, 'keywords', ['object', 'array', 'string']);
   data.keywords = Object.keys(script.keywords).map( (key, idx) => {
     const parsed_keyword = parse_keyword(script.keywords, key, options, data.tag_patterns);
     parsed_keyword.orig_idx = idx;

@@ -2,12 +2,12 @@ export default {
 
   // list of initial sentences from eliza (randomly chosen)
   "initial": [
-    "How do you do. Please tell me your problem.",
+    "How do you do. Please tell me your problem."
   ],
 
   // list of final sentences from eliza (randomly chosen)
   "final": [
-    "Goodbye.",
+    "Goodbye."
   ],
 
   // list of quit keywords
@@ -78,7 +78,9 @@ export default {
     "everyone": ["everyone", "everybody", "nobody", "noone"],
     "am": ["am", "is", "are", "was"],
   },
-
+  
+  
+  // keywords + transformation rules
   "keywords": {
     "sorry 0": {
       "*": [
@@ -125,14 +127,12 @@ export default {
       ]
     },
     
-    "dream 3": {
-      "*": [
-        "What does that dream suggest to you?",
-        "Do you dream often?",
-        "What persons appear in your dreams?",
-        "Don't you believe that dream has something to do with your problem?"
-      ]
-    },
+    "dream 3": [
+      "What does that dream suggest to you?",
+      "Do you dream often?",
+      "What persons appear in your dreams?",
+      "Don't you believe that dream has something to do with your problem?"
+    ],
     
     "how": "-> what",
     "when": "-> what",
@@ -149,48 +149,38 @@ export default {
       ]
     },
     
-    "perhaps": {
-      "*": [
-        "You don't seem quite certain.",
-        "Why the uncertain tone?",
-        "Can't you be more positive?",
-        "You aren't sure.",
-        "Don't you know?"
-      ]
-    },
+    "perhaps": [
+      "You don't seem quite certain.",
+      "Why the uncertain tone?",
+      "Can't you be more positive?",
+      "You aren't sure.",
+      "Don't you know?"
+    ],
     
-    "maybe": "->perhaps",
+    "maybe": "-> perhaps",
     
-    "name": {
-      "*": [
-        "I am not interested in names.",
-        "I've told you before, I don't care about names - please continue.",
-      ]
-    },
+    "name": [
+      "I am not interested in names.",
+      "I've told you before, I don't care about names - please continue.",
+    ],
     
     "deutsch": "-> xfremd",
     "francais": "-> xfremd",
     "italiano": "-> xfremd",
     "espanol": "-> xfremd",
     
-    "xfremd": {
-      "*": "I am sorry, I speak only english."
-    },
+    "xfremd": "I am sorry, I speak only english.",
     
-    "hello": {
-      "*": "How do you do. Please state your problem."
-    },
+    "hello": "How do you do. Please state your problem.",
     
-    "computer 50": {
-      "*": [
-        "Do computers worry you?",
-        "Why do you mention computers?",
-        "What do you think machines have to do with your problem?",
-        "Don't you think, coputers can help people?",
-        "What about machines worries you?",
-        "What do you think about machines?"
-      ]
-    },
+    "computer 50": [
+      "Do computers worry you?",
+      "Why do you mention computers?",
+      "What do you think machines have to do with your problem?",
+      "Don't you think, coputers can help people?",
+      "What about machines worries you?",
+      "What do you think about machines?"
+    ],
     
     "machine 50": "-> computer",
     "machines 50": "-> computer",
@@ -348,23 +338,19 @@ export default {
       ]
     },
     
-    "yes": {
-      "*": [
-        "You seem quite positive.",
-        "You are sure.",
-        "I see.",
-        "I understand."
-      ]
-    },
+    "yes": [
+      "You seem quite positive.",
+      "You are sure.",
+      "I see.",
+      "I understand."
+    ],
     
-    "no": {
-      "*": [
-        "Are you saying 'no' just to be negative?",
-        "You are being a bit negative.",
-        "Why not?",
-        "Why 'no'?"
-      ]
-    },
+    "no": [
+      "Are you saying 'no' just to be negative?",
+      "You are being a bit negative.",
+      "Why not?",
+      "Why 'no'?"
+    ],
     
     "my 2": {
       "* my * #family *": [
@@ -396,28 +382,24 @@ export default {
       ]
     },
     
-    "what": {
-      "*": [
-        "Why do you ask?",
-        "Does that question interest you?",
-        "What is it you really want to know?",
-        "Are such questions much on your mind?",
-        "What answer would please you most?",
-        "What do you think?",
-        "What comes to your mind when you ask that?",
-        "Have you asked such questions before?",
-        "Have you asked anyone else?"
-      ]
-    },
+    "what": [
+      "Why do you ask?",
+      "Does that question interest you?",
+      "What is it you really want to know?",
+      "Are such questions much on your mind?",
+      "What answer would please you most?",
+      "What do you think?",
+      "What comes to your mind when you ask that?",
+      "Have you asked such questions before?",
+      "Have you asked anyone else?"
+    ],
     
-    "because": {
-      "*": [
-        "Is that the real reason?",
-        "Don't any other reasons come to mind?",
-        "Does that reason seem to explain anything else?",
-        "What other reasons might there be?"
-      ]
-    },
+    "because": [
+      "Is that the real reason?",
+      "Don't any other reasons come to mind?",
+      "Does that reason seem to explain anything else?",
+      "What other reasons might there be?"
+    ],
     
     "why": {
       "* why don't you *": [
@@ -454,31 +436,27 @@ export default {
     "nobody 2": "-> everyone",
     "noone 2": "-> everyone",
     
-    "always 1": {
-      "*": [
-        "Can you think of a specific example?",
-        "When?",
-        "What incident are you thinking of?",
-        "Really, always?"
-      ]
-    },
+    "always 1": [
+      "Can you think of a specific example?",
+      "When?",
+      "What incident are you thinking of?",
+      "Really, always?"
+    ],
     
     "like 10 ": {
       "* #am * like *": "-> dit"
     },
     
-    "dit": {
-      "*": [
-        "In what way?",
-        "What resemblance to you see?",
-        "What does that similarity suggest to you?",
-        "What other connections to you see?",
-        "What do you suppose that resemblance means?",
-        "What is the connection, do you suppose?",
-        "Could there really be some connection?",
-        "How?"
-      ]
-    }
+    "dit": [
+      "In what way?",
+      "What resemblance to you see?",
+      "What does that similarity suggest to you?",
+      "What other connections to you see?",
+      "What do you suppose that resemblance means?",
+      "What is the connection, do you suppose?",
+      "Could there really be some connection?",
+      "How?"
+    ]
   }
 
 };
