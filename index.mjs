@@ -206,7 +206,7 @@ export function normalize_input(text, options) {
 
 
 export function make_eliza(script, options={}) {
-  options = Object.assign({}, options, default_options);
+  options = Object.assign({}, default_options, options);
   
   if (options.debug_options) console.log('options:', options);
   
@@ -294,6 +294,7 @@ export function make_eliza(script, options={}) {
         reply = reply.replace(param_regex, (match, p1) => {
           const param = parseInt(p1);
           if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
+          // tags are counted as params as well, since they are a capture group in the decomp pattern!
           let val = decomp_match[param]; // capture groups start at idx 1, params as well!
           if (val === undefined) return '';
           val = val.trim();
