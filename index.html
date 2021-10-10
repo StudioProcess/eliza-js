@@ -116,7 +116,7 @@
         return false;
       }
       
-      eliza = await make_eliza( load_result.script, {seed} );
+      eliza = await make_eliza( load_result.script, {seed, debug:true} );
       set_script_path(inp_script.value);
       inputs = [];
       history_idx = -1;
