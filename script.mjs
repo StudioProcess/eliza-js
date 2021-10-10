@@ -71,11 +71,25 @@ export default {
   
   
   // keywords and associated transformation rules
+  //
+  // a keyword can optionally be followed by a rank number (default is 0) e.g. "hello 10"
+  // 
   // rules can be written in the following four forms:
   //   <keyword>: <reassembly>
   //   <keyword>: [ <reassembly>, ... ]
   //   <keyword>: { <decomposition>: <reassembly>, ... }
   //   <keyword>: { <decomposition>: [ <reassembly>, ... ], ... }
+  // 
+  // special characters:
+  //   * ............. wildcard (in decomposition): represents arbitrary text
+  //   #<tag> ........ tag (in decomposition): refer to tags e.g. #belief
+  //   $<n> .......... parameter (in reassembly): refer to wildcards/tags of the
+  //                   decomposition e.g. $1, $2 etc.
+  //   = <keyword> ... jump to another keyword (in reassembly)
+  //   @ ............. memory marker (at start of keyword or decomposition):
+  //                   save reply from this keyword or decomposition for later,
+  //                   when no keywords generate a reply. continue with next
+  //                   matching decomposition or keyword.
   "keywords": {
     "sorry 0": {
       "*": [
