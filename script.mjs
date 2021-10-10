@@ -80,7 +80,12 @@ export default {
   },
   
   
-  // keywords + transformation rules
+  // keywords and associated transformation rules
+  // rules can be written in the following four forms:
+  //   <keyword>: <reassembly>
+  //   <keyword>: [ <reassembly>, ... ]
+  //   <keyword>: { <decomposition>: <reassembly>, ... }
+  //   <keyword>: { <decomposition>: [ <reassembly>, ... ], ... }
   "keywords": {
     "sorry 0": {
       "*": [
