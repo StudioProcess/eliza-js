@@ -104,7 +104,8 @@
       print(new Date().toISOString());
       print();
       
-      const load_result = await load_script(inp_script.value);
+      // add random querystring to force reload module
+      const load_result = await load_script(inp_script.value + "?" + Date.now());
       if ( !load_result.success ) {
         print('error loading script: ' + inp_script.value);
         const e = load_result.error;
