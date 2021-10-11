@@ -93,6 +93,46 @@ tap.test("fallback", async t => {
 });
 
 
+tap.test("memory", async t => {
+  const script = Object.assign({}, base_script);
+  
+  script.keywords = {
+    '@ key1': ['re1', 're2', 're3'],
+    '@key2': 're4',
+    'key3': {
+      '* key3 x *': 're5',
+      '@ * key3 y *': 're6',
+      '@* key3 z *': 're7'
+    },
+    'key4': 're8'
+  };
+  const e = make_eliza(script, options);
+  t.equal( e.transform('key0'), 'none1');
+  t.equal( e.transform('key1 key4'), 're8');
+  t.equal( e.transform('key1 key4'), 're8');
+  t.equal( e.transform('key0'), 're1');
+  t.equal( e.transform('key0'), 're2');
+  t.equal( e.transform('key0'), 'none2');
+  
+  t.equal( e.transform('key0'), 'none1');
+  t.equal( e.transform('key2 key4'), 're8');
+  t.equal( e.transform('key2 key4'), 're8');
+  t.equal( e.transform('key0'), 're4');
+  t.equal( e.transform('key0'), 're4');
+  t.equal( e.transform('key0'), 'none2');
+  
+  t.equal( e.transform('key0'), 'none1');
+  t.equal( e.transform('key3 x key4'), 're5');
+  t.equal( e.transform('key3 y key4'), 're8');
+  t.equal( e.transform('key3 z key4'), 're8');
+  t.equal( e.transform('key0'), 're6');
+  t.equal( e.transform('key0'), 're7');
+  t.equal( e.transform('key0'), 'none2');
+  
+  t.equal( e.transform('key2'), 're4', 'immediately retrieve memory');
+});
+
+
 tap.test("jump/goto", async t => {
   const script = Object.assign({}, base_script);
   
@@ -156,3 +196,4 @@ tap.test("jump/goto", async t => {
   t.equal( e.transform('key7'), 're8');
   t.equal( e.transform('key7'), 're6');
 });
+
