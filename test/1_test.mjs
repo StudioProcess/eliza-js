@@ -242,3 +242,52 @@ tap.test("wildcards (decomp/reasmb)", async t => {
   t.equal( e.transform('a key3 b'), 'aabb');
   t.equal( e.transform('a key3 b'), 'ab');
 });
+
+
+tap.test("tags", async t => {
+  const script = Object.assign({}, base_script, {
+    'tags': {
+      'tag1': ['t11', 't12', 't13'],
+      'tag2': ['t21', 't22']
+    }
+  });
+  script.keywords = {
+    'key1': {
+      '#tag1 * key1 *': 're1',
+      '* key1 * #tag1': 're2',
+      '* #tag1 * key1 *': 're3',
+      '*': 're4'
+    },
+    'key2': {
+      '* key2 * #tag2 *': ['$1', '$2', '$3', '$4']
+    }
+  };
+  const e = make_eliza(script, options);
+  t.equal( e.transform('t11 key1'), 're1');
+  t.equal( e.transform('t11 bla key1'), 're1');
+  t.equal( e.transform('t11 bla key1 bla'), 're1');
+  t.equal( e.transform('t12 key1'), 're1');
+  t.equal( e.transform('t13 key1'), 're1');
+  
+  t.equal( e.transform('key1 t11'), 're2');
+  t.equal( e.transform('key1 bla t11'), 're2');
+  t.equal( e.transform('bla key1 bla t11'), 're2');
+  
+  t.equal( e.transform('bla t11 key1'), 're3');
+  t.equal( e.transform('bla t12 bla key1'), 're3');
+  t.equal( e.transform('bla t13 bla key1 bla'), 're3');
+  
+  t.equal( e.transform('key1'), 're4');
+  t.equal( e.transform('bla key1 bla'), 're4');
+  
+  t.equal( e.transform('a a key2 b b t21 c c'), 'a a');
+  t.equal( e.transform('a a key2 b b t21 c c'), 'b b');
+  t.equal( e.transform('a a key2 b b t21 c c'), 't21');
+  t.equal( e.transform('a a key2 b b t21 c c'), 'c c');
+  
+  t.equal( e.transform('key2 t22'), 'none1');
+  t.equal( e.transform('key2 t22'), 'none2');
+  t.equal( e.transform('key2 t22'), 't22');
+  t.equal( e.transform('key2 t22'), 'none1');
+});
+
