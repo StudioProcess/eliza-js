@@ -129,6 +129,7 @@ export function make_eliza(script, options={}) {
           log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
           return val_post;
         });
+        reply = reply.trim();
         if (rule.mem_flag) {
           mem_push(reply); // don't use this reply now, save it
           log('reply memorized: ', JSON.stringify(reply));

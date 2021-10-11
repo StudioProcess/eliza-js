@@ -198,7 +198,7 @@ tap.test("jump/goto", async t => {
 });
 
 
-tap.test("testing wildcard (decomp/reasmb)", async t => {
+tap.test("wildcards (decomp/reasmb)", async t => {
   const script = Object.assign({}, base_script);
   
   script.keywords = {
@@ -213,7 +213,7 @@ tap.test("testing wildcard (decomp/reasmb)", async t => {
       '* key2 *': [ '$1 x $2', '$2 x $1' ]
     },
     'key3': {
-      '* key3 *': [ '$0', '$1', '$2', '$3' ]
+      '* key3 *': [ '$0', 'x$0', 'x $0', '$1', '$2', '$3', 'x$3', 'x  $3', '$1$2', '$1$1$2$2','$0$1$2$3' ]
     }
   };
   const e = make_eliza(script, options);
@@ -221,6 +221,24 @@ tap.test("testing wildcard (decomp/reasmb)", async t => {
   t.equal( e.transform('a key1 b'), 're1');
   t.equal( e.transform('x bla key1 bla'), 're2');
   t.equal( e.transform('bla x key1 bla'), 're3');
+  t.equal( e.transform('bla key1 bla x'), 're4');
+  t.equal( e.transform('bla key1 x bla'), 're5');
+  t.equal( e.transform('bla key1 bla'), 're1');
   
+  t.equal( e.transform('a key2 b'), 'a x b');
+  t.equal( e.transform('a key2 b'), 'b x a');
+  t.equal( e.transform('bla bla key2 blu blu'), 'bla bla x blu blu');
+  t.equal( e.transform('bla bla key2 blu blu'), 'blu blu x bla bla');
+  
+  t.equal( e.transform('a key3 b'), 'none1');
+  t.equal( e.transform('a key3 b'), 'x');
+  t.equal( e.transform('a key3 b'), 'x');
+  t.equal( e.transform('a key3 b'), 'a');
+  t.equal( e.transform('a key3 b'), 'b');
+  t.equal( e.transform('a key3 b'), 'none2');
+  t.equal( e.transform('a key3 b'), 'x');
+  t.equal( e.transform('a key3 b'), 'x');
+  t.equal( e.transform('a key3 b'), 'ab');
+  t.equal( e.transform('a key3 b'), 'aabb');
+  t.equal( e.transform('a key3 b'), 'ab');
 });
-
