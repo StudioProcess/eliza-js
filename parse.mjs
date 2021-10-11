@@ -15,7 +15,7 @@ export function parse_key(key) {
 
 export function get_decomp_pattern(decomp, tag_patterns={}, tag_marker='#', wildcard_marker='*') {
   // expand tags
-  const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'g' ); // match all tags eg. #happy in "* i am * #happy *"
+  const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'gi' ); // match all tags eg. #happy in "* i am * #happy *"
   let out = decomp.replace(tag_re, (match, p1) => {
     if ( Object.keys(tag_patterns).includes(p1) ) return tag_patterns[p1]; // replace with tag regex pattern
     return p1; // remove tag marker
@@ -203,8 +203,8 @@ export function parse_script(script, options) {
 }
 
 export function normalize_input(text, options) {
-  // TODO(?): DO NOT lowercase (preserve capitalization for output)
-  text = text.toLowerCase();
+  // DO NOT lowercase (preserve capitalization for output)
+  if (options.lowercase_input) text = text.toLowerCase();
   
   // ignore all characters that arent explicitly allowed
   // A-Z 0-9 and space are always allowed

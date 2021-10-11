@@ -12,6 +12,8 @@ const default_options = {
   'debug_script': false,
   'memory_size': 100,
   'shuffle_choices': false,
+  'lowercase_input': true,
+  'lowercase_output': false,
   'seed': -1,
   
   'wildcard_marker': '*',
@@ -123,7 +125,7 @@ export function make_eliza(script, options={}) {
         log('reasmb ' + reasmb_idx + ' chosen:', util.stringify_node(reasmb));
         // detect goto directive
         // matches goto marker (optional whitespace) then the keyword to go to
-        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)');
+        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)', 'i');
         const goto_match = reasmb.match(goto_regex);
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );
@@ -221,6 +223,14 @@ export function make_eliza(script, options={}) {
     return options.fallback_reply;
   }
   
+  function transform_postprocess(text) {
+    let reply = transform(text);
+    if (options.lowercase_output) reply = reply.toLowerCase();
+    reply = util.contract_whitespace(reply);
+    // reply = util.fix_punctuation(reply);
+    return reply;
+  }
+  
   function transform_delay(text, delay=[1,3]) {
     const response = transform(text);
     if (Array.isArray(delay)) {
@@ -238,7 +248,7 @@ export function make_eliza(script, options={}) {
   
   return {
     get_initial,
-    transform,
+    transform: transform_postprocess,
     transform_delay,
     is_quit,
     reset,

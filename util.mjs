@@ -51,6 +51,12 @@ export function contract_whitespace(str) {
   return replace_whitespace(str, ' ');
 }
 
+// // remove whitespace before punctuation
+// export function fix_punctuation(str, punc='.,:;!?') {
+//   const pattern = '\\s+([' + regex_escape(punc) + ']+)';
+//   return str.replace(new RegExp(pattern, 'g'), '$1');
+// }
+
 // https://stackoverflow.com/a/6969486
 // added '-' to be escaped (for use in character classes)
 export function regex_escape(str) {
