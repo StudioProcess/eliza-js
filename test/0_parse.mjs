@@ -1,7 +1,7 @@
 import tap from 'tap';
 
 import * as util from '../util.mjs';
-import * as eliza from '../index.mjs';
+import * as parse from '../parse.mjs';
 
 
 tap.test("type function", async t => {
@@ -67,17 +67,17 @@ tap.test("contract_whitespace function", async t => {
 });
 
 tap.test("parse_key function", async t => {
-  t.hasStrict( eliza.parse_key('  hello 10  '), {key:'hello', rank:10} );
-  t.hasStrict( eliza.parse_key('  hello   10  '), {key:'hello', rank:10} );
-  t.hasStrict( eliza.parse_key('one two 102'), {key:'one two', rank:102} );
-  t.hasStrict( eliza.parse_key('hello'), {key:'hello', rank:0} );
-  t.hasStrict( eliza.parse_key('  one    two  '), {key:'one two', rank:0} );
-  t.hasStrict( eliza.parse_key('10 10'), {key:'10', rank:10} );
-  t.hasStrict( eliza.parse_key('10'), {key:'10', rank:0} );
-  t.hasStrict( eliza.parse_key('  10'), {key:'10', rank:0} );
-  t.hasStrict( eliza.parse_key('  10  '), {key:'10', rank:0} );
-  t.hasStrict( eliza.parse_key(10), {key:'10', rank:0} );
-  t.hasStrict( eliza.parse_key(' hello  -10   '), {key:'hello', rank:-10} );
+  t.hasStrict( parse.parse_key('  hello 10  '), {key:'hello', rank:10} );
+  t.hasStrict( parse.parse_key('  hello   10  '), {key:'hello', rank:10} );
+  t.hasStrict( parse.parse_key('one two 102'), {key:'one two', rank:102} );
+  t.hasStrict( parse.parse_key('hello'), {key:'hello', rank:0} );
+  t.hasStrict( parse.parse_key('  one    two  '), {key:'one two', rank:0} );
+  t.hasStrict( parse.parse_key('10 10'), {key:'10', rank:10} );
+  t.hasStrict( parse.parse_key('10'), {key:'10', rank:0} );
+  t.hasStrict( parse.parse_key('  10'), {key:'10', rank:0} );
+  t.hasStrict( parse.parse_key('  10  '), {key:'10', rank:0} );
+  t.hasStrict( parse.parse_key(10), {key:'10', rank:0} );
+  t.hasStrict( parse.parse_key(' hello  -10   '), {key:'hello', rank:-10} );
 });
 
 
@@ -98,7 +98,7 @@ tap.test("parse_keyword function", async t => {
     'fail5': { 'decomp1': ['reasmb1', null] },
   };
   const options = { wildcard_marker:'*', tag_marker:'#', memory_marker:'@' };
-  const parse_keyword = util.curry_right(eliza.parse_keyword, options);
+  const parse_keyword = util.curry_right(parse.parse_keyword, options);
   t.hasStrict( parse_keyword(obj, 'key1'), {key:'key1', rank:0, rules: [{"decomp": "*", "reasmb": ['str']}]} );
   t.hasStrict( parse_keyword(obj, '  key 2  10 '), {key:'key 2', rank:10, rules: [{"decomp": "*", "reasmb": ['str']}]} );
   t.hasStrict( parse_keyword(obj, 'key3'), {key:'key3', rank:0, rules: [{'decomp': 'decomp1', 'reasmb': ['reasmb1', 'reasmb2']}, {'decomp': 'decomp2', 'reasmb': ['reasmb3', 'reasmb4']}]} );
@@ -117,7 +117,7 @@ tap.test("parse_keyword function", async t => {
 
 tap.test("parse_script function", async t => {
   const options = { wildcard_marker:'*', tag_marker:'#', memory_marker:'@' };
-  const parse_script = util.curry_right(eliza.parse_script, options);
+  const parse_script = util.curry_right(parse.parse_script, options);
   const script1 = {
     'initial': ['str1', 'str2'],
     'final': ['str1', 'str2'],
