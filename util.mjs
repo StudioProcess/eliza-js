@@ -109,3 +109,16 @@ export function shuffle(array) {
   return array;
 }
 
+// shuffle but keep first x elements as is. Returns new array
+export function shuffle_fixed(array, keep_fixed=0) {
+  const fixed = array.slice(0, keep_fixed);
+  const rest = array.slice(keep_fixed);
+  return fixed.concat( shuffle(rest) );
+}
+
+// resolve with response after x seconds
+export async function delay(response, delay=0) {
+  return new Promise( (resolve, reject) => {
+    setTimeout(() => { resolve(response); }, delay*1000);
+  });
+}

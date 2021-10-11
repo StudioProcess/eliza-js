@@ -25,6 +25,9 @@ const default_options = {
   'stop_words': ['but'],
   'allow_chars': '\'äöüß-',
   'fallback_reply': 'I am at a loss for words.',
+  
+  'fixed_initial': 0,
+  'fixed_final': 0
 };
 
 
@@ -44,13 +47,15 @@ export function make_eliza(script, options={}) {
   const seed = options.seed < 0 ? undefined : options.seed;
   
   // variables
-  let quit, mem, rnd, last_none;
+  let quit, mem, rnd, last_none, last_initial, last_final;
   
   function reset() {
     quit = false;
     mem = [];
     rnd = new Math.seedrandom(seed); // initialize rng
     last_none = -1;
+    last_initial = -1;
+    last_final = -1;
     for (let k of data.keywords) {
       for (let r of k.rules) {
         r.last_choice = -1;
@@ -59,11 +64,19 @@ export function make_eliza(script, options={}) {
   }
   
   function get_initial() {
-    return data.initial[ util.rnd_int(data.initial.length, rnd) ];
+    if (++last_initial >= data.initial.length) {
+      data.initial = util.shuffle_fixed(data.initial, options.fixed_initial);
+      last_initial = 0;
+    }
+    return data.initial[ last_initial ];
   }
   
   function get_final() {
-    return data.final[ util.rnd_int(data.final.length, rnd) ];
+    if (++last_final >= data.final.length) {
+      data.final = util.shuffle_fixed(data.final, options.fixed_final);
+      last_final = 0;
+    }
+    return data.final[ last_final ];
   }
   
   function is_quit() {
@@ -209,9 +222,7 @@ export function make_eliza(script, options={}) {
     if (Array.isArray(delay)) {
       delay = delay[0] + rnd() * (delay[1] - delay[0]);
     }
-    return new Promise( (resolve, reject) => {
-      setTimeout(() => { resolve(response); }, delay*1000);
-    });
+    return util.delay( response, delay );
   }
   
   reset();

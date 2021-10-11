@@ -118,21 +118,29 @@ tap.test("parse_keyword function", async t => {
 tap.test("parse_script function", async t => {
   const options = { wildcard_marker:'*', tag_marker:'#', memory_marker:'@' };
   const parse_script = util.curry_right(parse.parse_script, options);
-  const script1 = {
-    'initial': ['str1', 'str2'],
-    'final': ['str1', 'str2'],
-    'none': ['str1', 'str2'],
+  const script_base = {
     'pre': { 'k1': 'v1', 'k2': 'v2'},
     'post': { 'k1': 'v1', 'k2': 'v2'},
     'quit': [ 'quit1', 'quit2' ],
     'tags': { 'k1': ['str1', 'str2'], 'k2': ['str3', 'str4'] },
     'keywords': {}
   };
-
-  const expected1 = Object.assign({}, script1);
+  const script_shuffled = { // these can be shuffled in the parsed data
+    'initial': ['str1', 'str2'],
+    'final': ['str1', 'str2'],
+    'none': ['str1', 'str2'],
+  }
+  const script1 = Object.assign({}, script_base, script_shuffled)
+  const expected1 = Object.assign({}, script_base);
   expected1.keywords = [];
-  t.hasStrict(parse_script(script1), expected1, 'keywords empty');
-
+  const parsed1 = parse_script(script1);
+  t.hasStrict(parsed1, expected1, 'keywords empty');
+  
+  // check if all shuffled elements are present
+  for (const key in Object.keys(script_shuffled)) {
+    t.match( new Set(script_shuffled[key]), new Set(parsed1[key]) );
+  }
+  
   script1.keywords = {
     "key1": "str1",
     "key2 1": {

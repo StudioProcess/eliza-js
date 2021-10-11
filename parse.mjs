@@ -138,10 +138,12 @@ export function parse_script(script, options) {
   // initial
   util.check_array(script, 'initial', ['string']);
   data.initial = script.initial;
+  data.initial = util.shuffle_fixed(data.initial, options.fixed_initial);
   
   // final
   util.check_array(script, 'final', ['string']);
   data.final = script.final;
+  data.final = util.shuffle_fixed(data.final, options.fixed_final);
   
   // quit
   util.check_array(script, 'quit', ['string']);
