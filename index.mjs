@@ -103,7 +103,8 @@ export function make_eliza(script, options={}) {
         rule.last_choice = reasmb_idx;
         log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));
         // detect goto directive
-        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + ' (\\S+)');
+        // matches goto marker (optional whitespace) then the keyword to go to
+        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)');
         const goto_match = reasmb.match(goto_regex);
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );

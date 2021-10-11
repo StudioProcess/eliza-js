@@ -91,3 +91,68 @@ tap.test("fallback", async t => {
   t.equal( e.transform('bla bla'), 'fallback');
   t.equal( e.transform('bla bla'), 'fallback');
 });
+
+
+tap.test("jump/goto", async t => {
+  const script = Object.assign({}, base_script);
+  
+  script.keywords = {
+    'key1': ['re1', 're2', '= key2', 're3'],
+    'key2': 're4',
+    'key3': ['re5', '=key4', 're6'],
+    'key4': ['re7', 're8'],
+    'key5': '= key3',
+    'key6': '= key4',
+    'key7': '= key5'
+  };
+  const e = make_eliza(script, options);
+  t.equal( e.transform('key1'), 're1');
+  t.equal( e.transform('key1'), 're2');
+  t.equal( e.transform('key1'), 're4');
+  t.equal( e.transform('key1'), 're3');
+  t.equal( e.transform('key1'), 're1');
+  
+  t.equal( e.transform('key3'), 're5');
+  t.equal( e.transform('key3'), 're7');
+  t.equal( e.transform('key3'), 're6');
+  t.equal( e.transform('key3'), 're5');
+  t.equal( e.transform('key3'), 're8');
+  t.equal( e.transform('key3'), 're6');
+  t.equal( e.transform('key3'), 're5');
+  t.equal( e.transform('key3'), 're7');
+  t.equal( e.transform('key3'), 're6');
+  t.equal( e.transform('key3'), 're5');
+  t.equal( e.transform('key3'), 're8');
+  t.equal( e.transform('key3'), 're6');
+  
+  t.equal( e.transform('key5'), 're5');
+  t.equal( e.transform('key5'), 're7');
+  t.equal( e.transform('key5'), 're6');
+  t.equal( e.transform('key5'), 're5');
+  t.equal( e.transform('key5'), 're8');
+  t.equal( e.transform('key5'), 're6');
+  t.equal( e.transform('key5'), 're5');
+  t.equal( e.transform('key5'), 're7');
+  t.equal( e.transform('key5'), 're6');
+  t.equal( e.transform('key5'), 're5');
+  t.equal( e.transform('key5'), 're8');
+  t.equal( e.transform('key5'), 're6');
+
+  t.equal( e.transform('key6'), 're7');
+  t.equal( e.transform('key6'), 're8');
+  t.equal( e.transform('key6'), 're7');
+  t.equal( e.transform('key6'), 're8');
+  
+  t.equal( e.transform('key7'), 're5');
+  t.equal( e.transform('key7'), 're7');
+  t.equal( e.transform('key7'), 're6');
+  t.equal( e.transform('key7'), 're5');
+  t.equal( e.transform('key7'), 're8');
+  t.equal( e.transform('key7'), 're6');
+  t.equal( e.transform('key7'), 're5');
+  t.equal( e.transform('key7'), 're7');
+  t.equal( e.transform('key7'), 're6');
+  t.equal( e.transform('key7'), 're5');
+  t.equal( e.transform('key7'), 're8');
+  t.equal( e.transform('key7'), 're6');
+});
