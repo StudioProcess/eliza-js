@@ -140,8 +140,14 @@ export function parse_script(script, options) {
   data.tags = util.map_obj_keys(script.tags, util.replace_whitespace); // tags can't contain whitespace
   
   // patterns (regexes)
-  data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
-  data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+  data.pre_pattern = '';
+  if (! util.obj_empty(data.pre) ) {
+    data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
+  }
+  data.post_pattern = '';
+  if (! util.obj_empty(data.post) ) {
+    data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+  }
   data.tag_patterns = Object.fromEntries(
     Object.entries(data.tags).map( ([tag, tagged_words]) => {
       return [ tag, '(' + tagged_words.map(util.regex_escape).join('|') + ')' ];
@@ -175,8 +181,8 @@ export function normalize_input(text, options) {
   text = text.toLowerCase();
   
   // ignore all characters that arent explicitly allowed
-  // A-Z and space are always allowed
-  const ignore_pattern = '[^a-zA-Z ' 
+  // A-Z 0-9 and space are always allowed
+  const ignore_pattern = '[^a-zA-Z0-9 ' 
     + util.regex_escape(options.allow_chars)
     + util.regex_escape(options.stop_chars)
     + ']';

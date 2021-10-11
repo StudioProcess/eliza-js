@@ -13,9 +13,9 @@ const default_options = {
   'memory_size': 100,
   'seed': -1,
   
-  'memory_marker': '@',
-  'tag_marker': '#',
   'wildcard_marker': '*',
+  'tag_marker': '#',
+  'memory_marker': '@',
   'goto_marker': '=',
   'param_marker_pre': '$',
   'param_marker_post': '',
@@ -40,7 +40,6 @@ export function make_eliza(script, options={}) {
   const seed = options.seed < 0 ? undefined : options.seed;
   
   const data = parse_script(script, options);
-  console.dir(data, {depth: 3});
   
   // variables
   let quit, mem, rnd, last_none;
@@ -121,8 +120,11 @@ export function make_eliza(script, options={}) {
           if (val === undefined) return '';
           val = val.trim();
           // post-process param value
-          const post_regex = new RegExp(data.post_pattern, 'gi');
-          const val_post = val.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
+          let val_post = val;
+          if (data.post_pattern) { // could be empty
+            const post_regex = new RegExp(data.post_pattern, 'gi');
+            val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
+          }
           log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
           return val_post;
         });
@@ -152,9 +154,10 @@ export function make_eliza(script, options={}) {
         return get_final();
       }
       // pre-process
-      const pre_regex = new RegExp(data.pre_pattern, 'gi');
-      part = part.replace(pre_regex, (match, p1) => data.pre[p1.toLowerCase()]);
-      
+      if (data.pre_pattern) { // could be empty
+        const pre_regex = new RegExp(data.pre_pattern, 'gi');
+        part = part.replace(pre_regex, (match, p1) => data.pre[p1.toLowerCase()]);
+      }
       // look for keywords
       for (const keyword of data.keywords) {
         const key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'i');

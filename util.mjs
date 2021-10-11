@@ -88,3 +88,7 @@ export function curry_right(fn, ...args1) {
     return fn(...args2.concat(args1));
   };
 }
+
+export function obj_empty(obj) {
+  return Object.keys(obj).length === 0;
+}
