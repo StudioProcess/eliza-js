@@ -120,7 +120,7 @@ export function make_eliza(script, options={}) {
         }
         const reasmb = rule.reasmb[reasmb_idx];
         rule.last_choice = reasmb_idx;
-        log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));
+        log('reasmb ' + reasmb_idx + ' chosen:', util.stringify_node(reasmb));
         // detect goto directive
         // matches goto marker (optional whitespace) then the keyword to go to
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)');
@@ -145,13 +145,13 @@ export function make_eliza(script, options={}) {
             const post_regex = new RegExp(data.post_pattern, 'gi');
             val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
           }
-          log('param (' + param + '):', JSON.stringify(val), '->', JSON.stringify(val_post));
+          log('param (' + param + '):', util.stringify_node(val), '->', util.stringify_node(val_post));
           return val_post;
         });
         reply = reply.trim();
         if (rule.mem_flag) {
           mem_push(reply); // don't use this reply now, save it
-          log('reply memorized: ', JSON.stringify(reply));
+          log('reply memorized:', util.stringify_node(reply));
         }
         else return reply;
       }
@@ -161,7 +161,8 @@ export function make_eliza(script, options={}) {
   
   function transform(text) {
     text = normalize_input(text, options);
-    log('transforming (normalized):', JSON.stringify(text));
+    log(' '); 
+    log('transforming (normalized):', util.stringify_node(text));
     let parts = text.split('.');
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');
@@ -183,10 +184,10 @@ export function make_eliza(script, options={}) {
       for (const keyword of data.keywords) {
         const key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'i');
         if ( key_regex.test(part) ) {
-          log('keyword found (part ' + idx + '):', keyword);
+          log('keyword found (in part ' + idx + '):', keyword);
           const reply = exec_rule(keyword, part);
           if (reply != '') {
-            log('reply:', JSON.stringify(reply));
+            log('reply:', util.stringify_node(reply));
             return reply;
           }
         }
@@ -197,7 +198,7 @@ export function make_eliza(script, options={}) {
     log('no reply generated through keywords');
     let reply = mem_pop();
     if (reply != '') {
-      log('using memorized reply:', JSON.stringify(reply));
+      log('using memorized reply:', util.stringify_node(reply));
       return reply;
     }
     
@@ -207,13 +208,13 @@ export function make_eliza(script, options={}) {
       if (++last_none >= data.none.length) last_none = 0;
       const reply = data.none[last_none];
       if (reply != '') {
-        log('using none reply:', JSON.stringify(reply));
+        log('using none reply:', util.stringify_node(reply));
         return reply;
       }
     }
     
     // last resort
-    log('using fallback reply:', JSON.stringify(options.fallback_reply));
+    log('using fallback reply:', util.stringify_node(options.fallback_reply));
     return options.fallback_reply;
   }
   

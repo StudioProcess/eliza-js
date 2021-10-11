@@ -122,3 +122,15 @@ export async function delay(response, delay=0) {
     setTimeout(() => { resolve(response); }, delay*1000);
   });
 }
+
+// very cheap test for node.js
+export function is_node() {
+  return typeof process === 'object';
+}
+
+// apply JSON.stringify, but only on node.js
+// used to get cleaner output in the browser, and proper quoting of strings in node
+export function stringify_node(obj) {
+  if (is_node()) return JSON.stringify(obj);
+  return obj;
+}
