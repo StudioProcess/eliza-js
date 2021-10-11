@@ -10,7 +10,8 @@ export default {
     "Goodbye."
   ],
 
-  // list of quit keywords
+  // list of quit commands
+  // quit, when one of these is the only input
   "quit": [
     "bye",
     "goodbye",
@@ -18,7 +19,7 @@ export default {
     "exit",
     "quit",
   ],
-  
+
   "none": [
     "I am not sure I understand you fully.",
     "Please go on.",
@@ -57,7 +58,7 @@ export default {
   },
 
   // tag definitions
-  // to be used in decompositon rules (with '#')
+  // to be used in decomposition rules (with '#')
   "tags": {
     "belief": ["feel", "think", "believe", "wish"],
     "family": ["mother", "father", "sister", "brother", "wife", "children"],
@@ -68,8 +69,8 @@ export default {
     "everyone": ["everyone", "everybody", "nobody", "noone"],
     "am": ["am", "is", "are", "was"],
   },
-  
-  
+
+
   // keywords and associated transformation rules
   //
   // a keyword can optionally be followed by a rank number (default is 0) e.g. "hello 10"
@@ -83,9 +84,9 @@ export default {
   // special characters:
   //   * ............. wildcard (in decomposition): represents arbitrary text
   //   #<tag> ........ tag (in decomposition): refer to tags e.g. #belief
-  //   $<n> .......... parameter (in reassembly): refer to wildcards/tags of the
+  //   $<n> .......... parameter (in reassembly): refer to wildcards/tags in the
   //                   decomposition e.g. $1, $2 etc.
-  //   = <keyword> ... jump to another keyword (in reassembly)
+  //   = <keyword> ... jump marker (in reassembly) jump to another keyword
   //   @ ............. memory marker (at start of keyword or decomposition):
   //                   save reply from this keyword or decomposition for later,
   //                   when no keywords generate a reply. continue with next
@@ -93,7 +94,7 @@ export default {
   "keywords": {
     "sorry 0": {
       "*": [
-        "Please don't apologise.",
+        "Please don't apologize.",
         "Apologies are not necessary.",
         "What feelings do you have when you apologize?",
         "I've told you that apologies are not required.",
@@ -128,7 +129,7 @@ export default {
     },
     
     "dreamt 4": {
-      "* you dreamt *": [
+      "* i dreamt *": [
         "Really, $2?",
         "Have you ever fantasied $2 while you were awake?",
         "Have you dreamt $2 before?",
@@ -177,7 +178,7 @@ export default {
       "Do computers worry you?",
       "Why do you mention computers?",
       "What do you think machines have to do with your problem?",
-      "Don't you think, coputers can help people?",
+      "Don't you think, computers can help people?",
       "What about machines worries you?",
       "What do you think about machines?"
     ],
