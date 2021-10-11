@@ -291,3 +291,22 @@ tap.test("tags", async t => {
   t.equal( e.transform('key2 t22'), 'none1');
 });
 
+
+tap.only("override options in script", async t => {
+  const override_options = {
+    'wildcard_marker': '*x',
+    'tag_marker': '#x',
+    'memory_marker': '@x',
+    'goto_marker': '=x',
+    'param_marker_pre': '$x',
+    'param_marker_post': 'x',
+    'fallback_reply': 'fallbackx',
+  };
+  const script = Object.assign({}, base_script, {
+    'keywords': {},
+    'options': override_options
+  });
+  const e = make_eliza(script, options);
+  t.hasStrict(e.get_options(), override_options)
+});
+

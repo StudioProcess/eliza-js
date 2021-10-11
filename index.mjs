@@ -30,6 +30,9 @@ const default_options = {
 export function make_eliza(script, options={}) {
   options = Object.assign({}, default_options, options);
   
+  const data = parse_script(script, options);
+  options = data.options; // get options after parsing (script can override options)
+  
   if (options.debug_options) console.log('options:', options);
   
   // define a log function (does nothing if debug option is false)
@@ -38,8 +41,6 @@ export function make_eliza(script, options={}) {
   log.dir = options.debug ? console.dir : () => {}; 
   
   const seed = options.seed < 0 ? undefined : options.seed;
-  
-  const data = parse_script(script, options);
   
   // variables
   let quit, mem, rnd, last_none;

@@ -120,6 +120,14 @@ export function parse_script(script, options) {
   // check script as a whole
   if (typeof script !== 'object') util.script_error('script needs to be an object');
   
+  // options (optional)
+  if ( util.type(script.options) == 'object' ) {
+    data.options = Object.assign( {}, options, script.options );
+  } else {
+    data.options = Object.assign( {}, options );
+  }
+  options = data.options;
+  
   // initial
   util.check_array(script, 'initial', ['string']);
   data.initial = script.initial;
