@@ -46,3 +46,21 @@ tap.test("keyword rank", async t => {
   t.equal( e.transform('key3 key0'), 'reply0', '4th highest (order)' );
 });
 
+tap.test("recomp cycling", async t => {
+  const script = Object.assign({}, base_script);
+  
+  script.keywords = {
+    'key1': ['re1', 're2', 're3'],
+    'key2': 're4'
+  };
+  const e = make_eliza(script, options);
+  
+  t.equal( e.transform('bla key1 bla'), 're1');
+  t.equal( e.transform('bla key1 bla'), 're2');
+  t.equal( e.transform('bla key1 bla'), 're3');
+  t.equal( e.transform('bla key1 bla'), 're1');
+  t.equal( e.transform('bla key2 bla'), 're4');
+  t.equal( e.transform('bla key2 bla'), 're4');
+});
+
+
