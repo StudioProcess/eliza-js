@@ -5,10 +5,10 @@ import { make_eliza } from '../index.mjs';
 
 
 const base_script = {
-  'initial': ['str1', 'str2'],
-  'final': ['str1', 'str2'],
-  'none': ['str1', 'str2'],
+  'initial': ['init1', 'init2'],
+  'final': ['final1', 'final2'],
   'quit': [ 'quit1', 'quit2' ],
+  'none': [ 'none1', 'none2' ],
   'pre': {},
   'post': {},
   'tags': {}
@@ -21,8 +21,9 @@ const options = {
   'goto_marker': '=',
   'param_marker_pre': '$',
   'param_marker_post': '',
+  'fallback_reply': 'fallback',
   'debug_script': false,
-  'debug': false
+  'debug': false,
 };
 
 
@@ -64,3 +65,29 @@ tap.test("recomp cycling", async t => {
 });
 
 
+tap.test("none", async t => {
+  const script = Object.assign({}, base_script);
+  
+  script.keywords = {
+    'key1': ['re1', 're2', 're3'],
+    'key2': 're4'
+  };
+  const e = make_eliza(script, options);
+  t.equal( e.transform('bla bla'), 'none1');
+  t.equal( e.transform('bla bla'), 'none2');
+  t.equal( e.transform('bla bla'), 'none1');
+});
+
+
+tap.test("fallback", async t => {
+  const script = Object.assign({}, base_script, {none: []});
+  
+  script.keywords = {
+    'key1': ['re1', 're2', 're3'],
+    'key2': 're4'
+  };
+  const e = make_eliza(script, options);
+  t.equal( e.transform('bla bla'), 'fallback');
+  t.equal( e.transform('bla bla'), 'fallback');
+  t.equal( e.transform('bla bla'), 'fallback');
+});
