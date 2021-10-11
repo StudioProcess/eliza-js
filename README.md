@@ -78,7 +78,7 @@ Params:
     * `debug_script`: (default `false`)
     * `mem_size`: (default `20`)
     * `seed`: (default `-1`)
-    * `randomize_choices`: (default `false`)
+    * `shuffle_choices`: (default `false`)
     * `capitalize_first_letter`: (default `true`)
     * `memory_marker`: (default `'$'`)
     * `synonym_marker`: (default `@`)

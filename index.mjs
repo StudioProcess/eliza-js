@@ -11,6 +11,7 @@ const default_options = {
   'debug_options': false,
   'debug_script': false,
   'memory_size': 100,
+  'shuffle_choices': false,
   'seed': -1,
   
   'wildcard_marker': '*',
@@ -89,6 +90,7 @@ export function make_eliza(script, options={}) {
   
   // execute transformation rule on text
   // possibly produce a reply
+  // options: shuffle_choices
   function exec_rule(keyword, text) {
     // iterate through all rules in the keyword (decomp -> reasmb)
     for (const [idx, rule] of keyword.rules.entries()) {
@@ -97,9 +99,12 @@ export function make_eliza(script, options={}) {
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
         log('rule ' + idx + ' matched:', rule)
-        // choose reasmb rule (random or last_choice+1)
-        let reasmb_idx = options.randomize_choices ? util.rnd_int(rule.reasmb.length, rnd) : rule.last_choice + 1 ;
-        if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0;
+        // choose next reasmb rule
+        let reasmb_idx = rule.last_choice + 1 ;
+        if (reasmb_idx >= rule.reasmb.length) {
+          if (options.shuffle_choices) util.shuffle(rule.reasmb); // shuffle choices
+          reasmb_idx = 0; // wrap around
+        }
         const reasmb = rule.reasmb[reasmb_idx];
         rule.last_choice = reasmb_idx;
         log('reasmb ' + reasmb_idx + ' chosen:', JSON.stringify(reasmb));

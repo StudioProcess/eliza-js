@@ -51,7 +51,7 @@ export function set_mem_flag(obj, key, memory_marker) {
   }
 }
 
-// Required options: wildcard_marker, memory_marker, tag_marker
+// Required options: wildcard_marker, memory_marker, tag_marker, shuffle_choices
 // Note: key, decomp and reasmb patters are treated with contract_whitespce
 export function parse_keyword(keywords, key, options, tag_patterns={}) {
   const rules = keywords[key];
@@ -108,7 +108,14 @@ export function parse_keyword(keywords, key, options, tag_patterns={}) {
   for (const rule of out.rules) {
     rule.decomp_pattern = get_decomp_pattern(rule.decomp, tag_patterns, options.tag_marker, options.wildcard_marker);
   }
-
+  
+  // randomize reasmb rules
+  if (options.shuffle_choices) {
+    for (const rule of out.rules) {
+      util.shuffle(rule.reasmb);
+    }
+  }
+  
   return out;
 }
 
