@@ -71,7 +71,7 @@ export function set_mem_flag(obj, key, memory_marker) {
 
 // Required options: wildcard_marker, memory_marker, tag_marker
 // Note: key, decomp and reasmb patters are treated with contract_whitespce
-export function parse_keyword(keywords, key, options, tag_patterns) {
+export function parse_keyword(keywords, key, options, tag_patterns={}) {
   const rules = keywords[key];
   const out = {};
   Object.assign( out, parse_key(key) ); // adds key and rank properties to output
@@ -129,7 +129,7 @@ export function parse_keyword(keywords, key, options, tag_patterns) {
   return out;
 }
 
-// Required options: wildcard_marker, memory_marker, 
+// Required options: wildcard_marker, memory_marker, tag_marker
 export function parse_script(script, options) {
   script = Object.assign({}, script);
   const data = {};

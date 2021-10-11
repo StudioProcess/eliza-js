@@ -2,13 +2,7 @@ import tap from 'tap';
 
 import * as util from '../util.mjs';
 import * as eliza from '../index.mjs';
-// import { make_eliza } from '../index.mjs';
 
-// import { readFileSync } from 'fs';
-
-// script = (await import('../script.mjs')).default;
-// console.log(script);
-// let e = make_eliza(script);
 
 tap.test("type function", async t => {
   t.equal( util.type(null), 'null' );
@@ -83,6 +77,7 @@ tap.test("parse_key function", async t => {
   t.hasStrict( eliza.parse_key('  10'), {key:'10', rank:0} );
   t.hasStrict( eliza.parse_key('  10  '), {key:'10', rank:0} );
   t.hasStrict( eliza.parse_key(10), {key:'10', rank:0} );
+  t.hasStrict( eliza.parse_key(' hello  -10   '), {key:'hello', rank:-10} );
 });
 
 
@@ -91,63 +86,66 @@ tap.test("parse_keyword function", async t => {
     'key1': 'str',
     '  key 2  10 ': 'str',
     'key3': { 'decomp1': ['reasmb1', 'reasmb2'], 'decomp2': ['reasmb3', 'reasmb4'] },
-    'key4': { 'decomp1': 'reasmb1', 'decomp2': ['reasmb2', 'reasmb3']},
+    'key4': { 'decomp1': 'reasmb1', 'decomp2': ['reasmb2', 'reasmb3'] },
     'key5': '  one   two    three ',
-    ' key6   10 ': { '  decomp  one ': [' re   one ', ' re  two  '], '  decomp   two ': ['re  three ', 're  four  '] },
+    ' key6   10 ': { '  decomp  one ': [' re   one ', ' re  two  '], '  decomp   two ': ['re  three ', 're  four  ']  },
+    'key7': [ 're1', 're2' ],
+
     'fail1': { 'decomp1': 0 },
     'fail2': { 'decomp1': ['reasmb1', 1] },
     'fail3': { 'decomp1': ['reasmb1', []] },
     'fail4': { 'decomp1': ['reasmb1', {}] },
     'fail5': { 'decomp1': ['reasmb1', null] },
   };
+  const options = { wildcard_marker:'*', tag_marker:'#', memory_marker:'@' };
+  const parse_keyword = util.curry_right(eliza.parse_keyword, options);
+  t.hasStrict( parse_keyword(obj, 'key1'), {key:'key1', rank:0, rules: [{"decomp": "*", "reasmb": ['str']}]} );
+  t.hasStrict( parse_keyword(obj, '  key 2  10 '), {key:'key 2', rank:10, rules: [{"decomp": "*", "reasmb": ['str']}]} );
+  t.hasStrict( parse_keyword(obj, 'key3'), {key:'key3', rank:0, rules: [{'decomp': 'decomp1', 'reasmb': ['reasmb1', 'reasmb2']}, {'decomp': 'decomp2', 'reasmb': ['reasmb3', 'reasmb4']}]} );
+  t.hasStrict( parse_keyword(obj, 'key4'), {key:'key4', rank:0, rules: [{'decomp': 'decomp1', 'reasmb': ['reasmb1']}, {'decomp': 'decomp2', 'reasmb': ['reasmb2', 'reasmb3']}]} );
+  t.hasStrict( parse_keyword(obj, 'key5'), {key:'key5', rank:0, rules: [{"decomp": "*", "reasmb": ['one two three']}]} );
+  t.hasStrict( parse_keyword(obj, ' key6   10 '), {key:'key6', rank:10, rules: [{'decomp': 'decomp one', 'reasmb': ['re one', 're two']}, {'decomp': 'decomp two', 'reasmb': ['re three', 're four']}]} );
+  t.hasStrict( parse_keyword(obj, 'key7'), {key:'key7', rank:0, rules: [{'decomp': '*', 'reasmb': ['re1', 're2']}]});
   
-  t.hasStrict( eliza.parse_keyword(obj, 'key1'), {key:'key1', rank:0, rules: [{"decomp": "*", "reasmb": ['str']}]} );
-  t.hasStrict( eliza.parse_keyword(obj, '  key 2  10 '), {key:'key 2', rank:10, rules: [{"decomp": "*", "reasmb": ['str']}]} );
-  t.hasStrict( eliza.parse_keyword(obj, 'key3'), {key:'key3', rank:0, rules: [{'decomp': 'decomp1', 'reasmb': ['reasmb1', 'reasmb2']}, {'decomp': 'decomp2', 'reasmb': ['reasmb3', 'reasmb4']}]} );
-  t.hasStrict( eliza.parse_keyword(obj, 'key4'), {key:'key4', rank:0, rules: [{'decomp': 'decomp1', 'reasmb': ['reasmb1']}, {'decomp': 'decomp2', 'reasmb': ['reasmb2', 'reasmb3']}]} );
-  t.hasStrict( eliza.parse_keyword(obj, 'key5'), {key:'key5', rank:0, rules: [{"decomp": "*", "reasmb": ['one two three']}]} );
-  t.hasStrict( eliza.parse_keyword(obj, ' key6   10 '), {key:'key6', rank:10, rules: [{'decomp': 'decomp one', 'reasmb': ['re one', 're two']}, {'decomp': 'decomp two', 'reasmb': ['re three', 're four']}]} );
-  
-  t.throws(() => eliza.parse_keyword(obj, 'fail1'), 'reasmb not string or array');
-  t.throws(() => eliza.parse_keyword(obj, 'fail2'), 'reasmb array contains something other than string');
-  t.throws(() => eliza.parse_keyword(obj, 'fail3'), 'reasmb array contains something other than string');
-  t.throws(() => eliza.parse_keyword(obj, 'fail4'), 'reasmb array contains something other than string');
-  t.throws(() => eliza.parse_keyword(obj, 'fail5'), 'reasmb array contains something other than string');
+  t.throws(() => parse_keyword(obj, 'fail1'), 'reasmb not string or array');
+  t.throws(() => parse_keyword(obj, 'fail2'), 'reasmb array contains something other than string');
+  t.throws(() => parse_keyword(obj, 'fail3'), 'reasmb array contains something other than string');
+  t.throws(() => parse_keyword(obj, 'fail4'), 'reasmb array contains something other than string');
+  t.throws(() => parse_keyword(obj, 'fail5'), 'reasmb array contains something other than string');
 });
 
 
 tap.test("parse_script function", async t => {
+  const options = { wildcard_marker:'*', tag_marker:'#', memory_marker:'@' };
+  const parse_script = util.curry_right(eliza.parse_script, options);
   const script1 = {
     'initial': ['str1', 'str2'],
     'final': ['str1', 'str2'],
     'none': ['str1', 'str2'],
     'pre': { 'k1': 'v1', 'k2': 'v2'},
     'post': { 'k1': 'v1', 'k2': 'v2'},
+    'quit': [ 'quit1', 'quit2' ],
     'tags': { 'k1': ['str1', 'str2'], 'k2': ['str3', 'str4'] },
     'keywords': {}
   };
-  
+
   const expected1 = Object.assign({}, script1);
   expected1.keywords = [];
-  t.hasStrict(eliza.parse_script(script1), expected1, 'keywords empty');
-  
+  t.hasStrict(parse_script(script1), expected1, 'keywords empty');
+
   script1.keywords = {
     "key1": "str1",
     "key2 1": {
       "decomp1": "re1",
       "decomp2": ["re1", "re2"]
-    }
+    },
+    "key3": [ "re1", "re2" ]
   };
   expected1.keywords = [
-    { key: 'key1', rank: 0, rules: [ {decomp:'*', reasmb:['str1']} ]},
     { key: 'key2', rank: 1, rules: [ {decomp:'decomp1', reasmb:['re1']}, {decomp:'decomp2', reasmb:['re1', 're2']} ]},
+    { key: 'key1', rank: 0, rules: [ {decomp:'*', reasmb:['str1']} ]},
+    { key: 'key3', rank: 0, rules: [] }
   ];
-  t.hasStrict(eliza.parse_script(script1), expected1);
-});
-
-
-tap.only("", async t => {
-  const script = (await import('../script.mjs')).default;
-  eliza.make_eliza(script);
+  t.hasStrict(parse_script(script1), expected1);
 });
 

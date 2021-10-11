@@ -77,3 +77,14 @@ export function rnd_int(max, func=Math.random) {
   return Math.floor(func() * max);
 }
 
+export function curry(fn, ...args1) {
+  return function(...args2) {
+    return fn(...args1.concat(args2));
+  };
+}
+
+export function curry_right(fn, ...args1) {
+  return function(...args2) {
+    return fn(...args2.concat(args1));
+  };
+}
