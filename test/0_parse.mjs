@@ -149,3 +149,11 @@ tap.test("parse_script function", async t => {
   t.hasStrict(parse_script(script1), expected1);
 });
 
+tap.test("get_decomp_pattern", async t => {
+  t.equal(parse.get_decomp_pattern('*'), '^(.*)$');
+  t.equal(parse.get_decomp_pattern('* key'), '^(.*)\\bkey$');
+  t.equal(parse.get_decomp_pattern('key *'), '^key\\b(.*)$');
+  t.equal(parse.get_decomp_pattern('* key *'), '^(.*)\\bkey\\b(.*)$');
+  t.equal(parse.get_decomp_pattern('* key1 * key2 *'), '^(.*)\\bkey1\\b(.*)\\bkey2\\b(.*)$');
+});
+

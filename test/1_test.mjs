@@ -197,3 +197,30 @@ tap.test("jump/goto", async t => {
   t.equal( e.transform('key7'), 're6');
 });
 
+
+tap.test("testing wildcard (decomp/reasmb)", async t => {
+  const script = Object.assign({}, base_script);
+  
+  script.keywords = {
+    'key1': {
+      'x * key1 *': 're2',
+      '* x key1 *': 're3',
+      '* key1 * x': 're4',
+      '* key1 x *': 're5',
+      '* key1 *': 're1',
+    },
+    'key2': {
+      '* key2 *': [ '$1 x $2', '$2 x $1' ]
+    },
+    'key3': {
+      '* key3 *': [ '$0', '$1', '$2', '$3' ]
+    }
+  };
+  const e = make_eliza(script, options);
+  
+  t.equal( e.transform('a key1 b'), 're1');
+  t.equal( e.transform('x bla key1 bla'), 're2');
+  t.equal( e.transform('bla x key1 bla'), 're3');
+  
+});
+

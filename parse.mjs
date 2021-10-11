@@ -13,7 +13,7 @@ export function parse_key(key) {
   return { 'key': key, 'rank': 0 };
 }
 
-export function get_decomp_pattern(decomp, tag_patterns, tag_marker='#', wildcard_marker='*') {
+export function get_decomp_pattern(decomp, tag_patterns={}, tag_marker='#', wildcard_marker='*') {
   // expand tags
   const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'g' ); // match all tags eg. #happy in "* i am * #happy *"
   let out = decomp.replace(tag_re, (match, p1) => {
@@ -26,14 +26,22 @@ export function get_decomp_pattern(decomp, tag_patterns, tag_marker='#', wildcar
   out = out.replace(wild_re, (match, offset, string) => {
     // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
     // Note: this can include trailing whitespace into the capture group -> trim later
-    let pattern = '\\s*(.*)\\s*'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
-    if (match.length !== string.length) { // there's more than the match
-      if (offset == 0) pattern = pattern + '\\b'; // append word boundary marker
-      else pattern = '\\b' + pattern; // prepend word boundary marker
+    let pattern = '(.*)'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
+    if (match.length !== string.length) { // there's more than the wildcard
+      if (offset == 0) {
+        // wildcard is at the beginning: append word boundary marker
+        pattern = pattern + '\\b'; 
+      } else if (offset + match.length == string.length) {
+        // wildcard is at the end: prepend word boundary marker
+        pattern = '\\b' + pattern; 
+      } else {
+        // wildcard is in the middle: markers on both sides
+        pattern = '\\b' + pattern + '\\b';
+      }
     }
     return pattern;
   });
-  return out;
+  return '^' + out + '$';
 }
 
 export function set_mem_flag(obj, key, memory_marker) {
@@ -87,17 +95,18 @@ export function parse_keyword(keywords, key, options, tag_patterns={}) {
       }
     }
   }
-  // add decomp patterns
-  for (const rule of out.rules) {
-    rule.decomp_pattern = get_decomp_pattern(rule.decomp, tag_patterns, options.tag_marker, options.wildcard_marker);
-  }
-  // add mem flags
+  
+  // add mem flags (before decomp patterns are created)
   set_mem_flag(out, 'key', options.memory_marker); // ... for the whole keyword
   for (const rule of out.rules) {
     set_mem_flag(rule, 'decomp', options.memory_marker); // ... for each decomp rule
-    set_mem_flag(rule, 'decomp_pattern', options.memory_marker); // ... and pattern
     // if the whole key has a mem flag, flag all the rules
     if (out.mem_flag) rule.mem_flag = true;
+  }
+  
+  // add decomp patterns
+  for (const rule of out.rules) {
+    rule.decomp_pattern = get_decomp_pattern(rule.decomp, tag_patterns, options.tag_marker, options.wildcard_marker);
   }
 
   return out;
