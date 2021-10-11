@@ -127,7 +127,10 @@ export function make_eliza(script, options={}) {
         const goto_match = reasmb.match(goto_regex);
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );
-          if (goto_key !== undefined) return exec_rule(goto_key, text);
+          if (goto_key !== undefined) {
+            log('jumping to keyword:', util.stringify_node(goto_key));
+            return exec_rule(goto_key, text);
+          }
         }
         // substitute positional parameters in reassembly rule
         let reply = reasmb;
