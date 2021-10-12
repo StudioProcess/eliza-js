@@ -101,12 +101,12 @@ export function obj_empty(obj) {
 
 // shuffle array in place
 // https://stackoverflow.com/a/2450976
-export function shuffle(array) {
+export function shuffle(array, rnd=Math.random) {
   let currentIndex = array.length,  randomIndex;
   // While there remain elements to shuffle...
   while (currentIndex != 0) {
     // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
+    randomIndex = Math.floor(rnd() * currentIndex);
     currentIndex--;
     // And swap it with the current element.
     [array[currentIndex], array[randomIndex]] = [
@@ -116,10 +116,10 @@ export function shuffle(array) {
 }
 
 // shuffle but keep first x elements as is. Returns new array
-export function shuffle_fixed(array, keep_fixed=0) {
+export function shuffle_fixed(array, keep_fixed=0, rnd=Math.random) {
   const fixed = array.slice(0, keep_fixed);
   const rest = array.slice(keep_fixed);
-  return fixed.concat( shuffle(rest) );
+  return fixed.concat( shuffle(rest, rnd) );
 }
 
 // resolve with response after x seconds
