@@ -2,7 +2,7 @@ export default {
   
   // override options
   "options": {
-    // randomize choice of reassembly rule (instead of going one by one)
+    // randomly choose of reassembly rules and none-replies (instead of sequentially)
     "shuffle_choices": false,
     // transform input text to lowercase
     "lowercase_input": true,

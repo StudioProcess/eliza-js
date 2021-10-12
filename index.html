@@ -147,7 +147,7 @@
     
     async function replay() {
       let _inputs = inputs;
-      const reset_success = await reset(eliza.get_options().seed);
+      const reset_success = await reset(); // note don't use fixed seed when replaying
       if (reset_success) {
         console.log('replaying', _inputs)
         for (const text of _inputs) {

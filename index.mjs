@@ -66,17 +66,19 @@ export function make_eliza(script, options={}) {
   }
   
   function get_initial() {
-    if (++last_initial >= data.initial.length) {
-      data.initial = util.shuffle_fixed(data.initial, options.fixed_initial);
-      last_initial = 0;
+    last_initial++;
+    if (last_initial >= data.initial.length) last_initial = 0;
+    if (last_initial == 0) {
+      data.initial = util.shuffle_fixed(data.initial, options.fixed_initial, rnd);
     }
     return data.initial[ last_initial ];
   }
   
   function get_final() {
-    if (++last_final >= data.final.length) {
-      data.final = util.shuffle_fixed(data.final, options.fixed_final);
-      last_final = 0;
+    last_final++;
+    if (last_final >= data.final.length) last_final = 0;
+    if (last_final == 0) {
+      data.final = util.shuffle_fixed(data.final, options.fixed_final, rnd);
     }
     return data.final[ last_final ];
   }
@@ -116,9 +118,9 @@ export function make_eliza(script, options={}) {
         log('rule ' + idx + ' matched:', rule)
         // choose next reasmb rule
         let reasmb_idx = rule.last_choice + 1 ;
-        if (reasmb_idx >= rule.reasmb.length) {
-          if (options.shuffle_choices) util.shuffle(rule.reasmb); // shuffle choices
-          reasmb_idx = 0; // wrap around
+        if (reasmb_idx >= rule.reasmb.length) reasmb_idx = 0; // wrap around
+        if (reasmb_idx == 0 && options.shuffle_choices) {
+          util.shuffle(rule.reasmb, rnd); // shuffle choices
         }
         const reasmb = rule.reasmb[reasmb_idx];
         rule.last_choice = reasmb_idx;
@@ -210,7 +212,11 @@ export function make_eliza(script, options={}) {
     // nothing in mem, try none
     log('no reply memorized');
     if (data.none.length > 0) {
-      if (++last_none >= data.none.length) last_none = 0;
+      last_none++;
+      if (last_none >= data.none.length) last_none = 0;
+      if (last_none == 0 && options.shuffle_choices) {
+        data.none = util.shuffle(data.none, rnd);
+      }
       const reply = data.none[last_none];
       if (reply != '') {
         log('using none reply:', util.stringify_node(reply));
