@@ -38,7 +38,7 @@ npm start
 ## Usage
 
 ```javascript
-import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
+import { make_eliza_async } from 'eliza-js';
 
 (async () => {
   const eliza = await make_eliza_async('./scripts/example.mjs');
@@ -60,7 +60,7 @@ import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
 To construct a chatbot instance call the [make_eliza_async()](#make_eliza_asyncscript_url-options) function supplied by the library:
 
 ```javascript
-import { make_eliza_async } from './eliza-js/index.mjs';
+import { make_eliza_async } from 'eliza-js';
 const eliza = await make_eliza_async('./scripts/example.mjs');
 ```
 

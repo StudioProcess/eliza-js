@@ -20,7 +20,7 @@
     "node": ">=14.0.0",
     "npm": ">=7.24.0"
   },
-  "main": "index.mjs",
+  "main": "eliza.mjs",
   "devDependencies": {
     "browser-sync": "^2.27.5",
     "rollup": "^2.58.0",
