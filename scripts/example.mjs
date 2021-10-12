@@ -1,13 +1,26 @@
 export default {
   
+  // override options
   "options": {
+    // randomize choice of reassembly rule (instead of going one by one)
     "shuffle_choices": false,
+    // transform input text to lowercase
     "lowercase_input": true,
+    // transform output text to lowercase (responses will be fully lowercase)
     "lowercase_output": false,
+    // characters that delineate parts of the input
+    // parts will be transformed in the order they appear in
+    // if a part doesn't produce a response, the next part is tried
     "stop_chars": ".,;:?!",
+    // words that delineate parts of the input
     "stop_words": ["but"],
+    // allow these charaters in the input text
+    // everything else will be removed
+    // A-Z, a-z, 0-9 are always allowed
     "allow_chars": "'äöüß-",
+    // how many initial responses remain fixed (not chosen randomly)
     "fixed_initial": 2,
+    // how many final responses remain fixed (not chosen randomly)
     "fixed_final": 1
   },
 
@@ -481,6 +494,5 @@ export default {
       "How?"
     ]
   }
-
 
 };

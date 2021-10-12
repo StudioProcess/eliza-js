@@ -165,7 +165,7 @@ export function make_eliza(script, options={}) {
   }
   
   function transform(text) {
-    text = normalize_input(text, options);
+    text = normalize_input(text, options); // Note: will not remove stop_chars
     log(' '); 
     log('transforming (normalized):', util.stringify_node(text));
     let parts = text.split('.');

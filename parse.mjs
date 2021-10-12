@@ -207,7 +207,7 @@ export function normalize_input(text, options) {
   if (options.lowercase_input) text = text.toLowerCase();
   
   // ignore all characters that arent explicitly allowed
-  // A-Z 0-9 and space are always allowed
+  // A-Z 0-9 and space are always allowed (as well as stop chars)
   const ignore_pattern = '[^a-zA-Z0-9 ' 
     + util.regex_escape(options.allow_chars)
     + util.regex_escape(options.stop_chars)
