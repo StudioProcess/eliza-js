@@ -37,7 +37,7 @@ npm start
 
 ## Usage
 
-```
+```javascript
 import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
 
 (async () => {
@@ -59,7 +59,7 @@ import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
 
 To construct a chatbot instance call the [make_eliza_async()](#make_eliza_asyncscript_url-options) function supplied by the library:
 
-```
+```javascript
 import { make_eliza_async } from './eliza-js/index.mjs';
 const eliza = await make_eliza_async('./scripts/example.mjs');
 ```
@@ -76,21 +76,23 @@ Params:
     * `debug`: (default `false`)
     * `debug_options`: (default `false`)
     * `debug_script`: (default `false`)
-    * `mem_size`: (default `20`)
-    * `seed`: (default `-1`)
+    * `memory_size`: (default `100`)
     * `shuffle_choices`: (default `false`)
-    * `capitalize_first_letter`: (default `true`)
-    * `memory_marker`: (default `'$'`)
-    * `synonym_marker`: (default `@`)
-    * `asterisk_marker`: (default `'*'`)
+    * `lowercase_input`: (default `true`)
+    * `lowercase_output`: (default `false`)
+    * `seed`: (default `-1`)
+    * `wildcard_marker`: (default `'*'`)
+    * `tag_marker`: (default `'#'`)
+    * `memory_marker`: (default `'@'`)
+    * `goto_marker`: (default `'='`)
+    * `param_marker_pre`: (default `'$'`)
+    * `param_marker_post`: (default `''`)
     * `stop_chars`: (default `'.,;:?!'`)
     * `stop_words`: (default `['but']`)
     * `allow_chars`: (default `'\'äöüß-'`)
     * `fallback_reply`: (default `'I am at a loss for words.'`)
-    * `none_keyword`: (default `'xnone'`)
-    * `goto_keyword`: (default `'goto'`)
-    * `param_marker_pre`: (default `'('`)
-    * `param_marker_post`: (default `')'`)
+    * `fixed_initial`: (default: `0`)
+    * `fixed_final`: (default: `0`)
 
 Returns: 
 * Promise that resolves with an [ElizaInstance](#elizainstance) object
