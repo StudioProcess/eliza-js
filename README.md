@@ -111,10 +111,14 @@ An eliza instance is an object with the following functions:
 * [get_initial()](#get_initial)
 * [get_final()](#get_final)
 * [transform(text)](#transformtext)
-* [transform_delay(text, delay)](#transform_delaytext-delay)
 * [is_quit()](#is_quit)
 * [reset()](#reset)
 * [get_options()](#get_options)
+
+Additionally, it contains async versions of the three text-generating functions, which add a delay before an answer is returned:
+* [get_initial_async(delay)](#get_initial_asyncdelay)
+* [get_final_async(delay)](#get_final_asyncdelay)
+* [transform_async(text, delay)](#transform_asynctext-delay)
 
 ### get_initial()
 
@@ -146,17 +150,6 @@ Params:
 Returns:
 * String. Eliza's response.
 
-### transform_delay(text, delay)
-
-Asyncronous version of [transform()](#transformtext), that adds a delay to Eliza's response.
-
-Params:
-* `text`: The input sentence.
-* `delay`: (Default `[1, 3]`) Delay in seconds before response is returned. Either a single number or an array with two numbers `[delay_min, delay_max]` in which case the delay is a random number between the two values.
-
-Returns:
-* Promise that resolves to a string with Eliza's response.
-
 ### is_quit()
 
 Check if a quit phrase (like 'goodbye') has been encountered since the start of the conversation. Call after every [transform()](#transformtext) to check if a quit condition has been reached, in which case the conversation should be stopped.
@@ -186,3 +179,34 @@ Params:
 
 Returns:
 * The options object.
+
+### get_initial_async(delay)
+
+Asyncronous version of [get_initial()](#get_initial), that adds a delay to Eliza's response.
+
+Params:
+* `delay`: See [transform_async(text, delay)](#transform_asynctext-delay)
+
+Returns:
+* Promise that resolves to a string with Eliza's response.
+
+### get_final_async(delay)
+
+Asyncronous version of [get_final()](#get_final), that adds a delay to Eliza's response.
+
+Params:
+* `delay`: See [transform_async(text, delay)](#transform_asynctext-delay)
+
+Returns:
+* Promise that resolves to a string with Eliza's response.
+
+### transform_async(text, delay)
+
+Asyncronous version of [transform()](#transformtext), that adds a delay to Eliza's response.
+
+Params:
+* `text`: The input sentence.
+* `delay`: (Default `[1, 3]`) Delay in seconds before response is returned. Either a single number or an array with two numbers `[delay_min, delay_max]` in which case the delay is a random number between the two values.
+
+Returns:
+* Promise that resolves to a string with Eliza's response.

@@ -123,10 +123,27 @@ export function shuffle_fixed(array, keep_fixed=0, rnd=Math.random) {
 }
 
 // resolve with response after x seconds
-export async function delay(response, delay=0) {
+export function resolve_delayed(response, delay) {
   return new Promise( (resolve, reject) => {
     setTimeout(() => { resolve(response); }, delay*1000);
   });
+}
+
+// second order function hat adds a delay parameter to a function
+// the delay can be a single number or [delay_min, delay_max]
+export function add_delay(fn, rnd=Math.random, default_delay=[1,3]) {
+  return function delayed_fn(...args) {
+    // console.log('got args', args)
+    // console.log('expected fn', fn.length);
+    const rest = args.slice(0, fn.length); // expected number of args
+    const res = fn(...rest);
+    let delay = args[fn.length]; // the arg after the expected number of args for fn
+    if (delay == undefined) delay = default_delay;
+    if (Array.isArray(delay)) {
+      delay = delay[0] + rnd() * (delay[1] - delay[0]);
+    }
+    return resolve_delayed(res, delay);
+  };
 }
 
 // very cheap test for node.js

@@ -166,7 +166,7 @@ export function make_eliza(script, options={}) {
     return '';
   }
   
-  function transform(text) {
+  function transform(text = '') {
     text = normalize_input(text, options); // Note: will not remove stop_chars
     log(' '); 
     log('transforming (normalized):', util.stringify_node(text));
@@ -237,14 +237,6 @@ export function make_eliza(script, options={}) {
     return reply;
   }
   
-  function transform_delay(text, delay=[1,3]) {
-    const response = transform(text);
-    if (Array.isArray(delay)) {
-      delay = delay[0] + rnd() * (delay[1] - delay[0]);
-    }
-    return util.delay( response, delay );
-  }
-  
   reset();
   
   // log script after reset (last choice computed)
@@ -256,10 +248,13 @@ export function make_eliza(script, options={}) {
     get_initial,
     get_final,
     transform: transform_postprocess,
-    transform_delay,
     is_quit,
     reset,
     get_options,
+    // delayed versions of text-generating functions:
+    get_initial_async: util.add_delay(get_initial),
+    get_final_async: util.add_delay(get_final),
+    transform_async: util.add_delay(transform_postprocess)
   };
 }
 
