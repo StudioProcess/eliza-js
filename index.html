@@ -54,6 +54,13 @@
           print('ELIZA: ' + response);
         });
       }
+      if (eliza.is_quit()) {
+        // get some more final messages (we've got 1 already, in total we want fixed_final+1)
+        for (let i=0; i<eliza.get_options().fixed_final; i++) {
+          print('ELIZA: ' + eliza.get_final());
+        }
+        print('–');
+      }
       inputs.push(text);
       history_idx = -1;
       out.scrollTop = out.scrollHeight;
@@ -130,7 +137,9 @@
       history_saved_input = '';
       print(eliza.get_options());
       print();
-      print('ELIZA: ' + eliza.get_initial());
+      for (let i=0; i<eliza.get_options().fixed_initial + 1; i++) {
+        print('ELIZA: ' + eliza.get_initial());
+      }
       inp.focus();
       return true;
     }
@@ -148,7 +157,7 @@
     
     function get_script_path() {
       let path = localStorage.getItem('script_path');
-      if (!path) path = './script.mjs';
+      if (!path) path = './scripts/example.mjs';
       return path;
     }
     

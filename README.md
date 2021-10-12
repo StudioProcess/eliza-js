@@ -41,7 +41,7 @@ npm start
 import { make_eliza_async } from './node_modules/eliza-js/index.mjs';
 
 (async () => {
-  const eliza = await make_eliza_async('./script.mjs');
+  const eliza = await make_eliza_async('./scripts/example.mjs');
   
   console.log( 'Eliza: ' + eliza.get_initial() );
   
@@ -61,7 +61,7 @@ To construct a chatbot instance call the [make_eliza_async()](#make_eliza_asyncs
 
 ```
 import { make_eliza_async } from './eliza-js/index.mjs';
-const eliza = await make_eliza_async('./script.mjs');
+const eliza = await make_eliza_async('./scripts/example.mjs');
 ```
 
 Note that the function is async, since it needs to dynamically load the script file.
@@ -109,6 +109,7 @@ Returns:
 
 An eliza instance is an object with the following functions:
 * [get_initial()](#get_initial)
+* [get_final()](#get_final)
 * [transform(text)](#transformtext)
 * [transform_delay(text, delay)](#transform_delaytext-delay)
 * [is_quit()](#is_quit)
@@ -124,6 +125,16 @@ Params:
 
 Returns:
 * String. Initial sentence from Eliza.
+
+### get_final()
+
+Get a farewell message from Eliza. Can be used at the end of the conversation to get more final messages. Note when [is_quit()](#is_quit) returns true, the first final message has already been received, as the return value of the last [transform()](#transformtext).
+
+Params:
+* None
+
+Returns:
+* String. Final sentence from Eliza.
 
 ### transform(text)
 

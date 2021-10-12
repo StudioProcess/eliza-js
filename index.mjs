@@ -248,6 +248,7 @@ export function make_eliza(script, options={}) {
   
   return {
     get_initial,
+    get_final,
     transform: transform_postprocess,
     transform_delay,
     is_quit,
