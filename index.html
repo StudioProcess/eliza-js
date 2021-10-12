@@ -108,9 +108,10 @@
       
       clear();
       print('eliza-js');
-      print(new Date().toISOString());
       print();
-      
+      print(new Date().toISOString());
+      print('script: ' + inp_script.value);
+      print();
       // add random querystring to force reload module
       const load_result = await load_script(inp_script.value + "?" + Date.now());
       if ( !load_result.success ) {
@@ -157,7 +158,7 @@
     
     function get_script_path() {
       let path = localStorage.getItem('script_path');
-      if (!path) path = './scripts/example.mjs';
+      if (!path) path = './scripts/doctor.mjs';
       return path;
     }
     

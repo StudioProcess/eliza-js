@@ -9,6 +9,15 @@ export default {
   "final": [
     "Goodbye."
   ],
+  
+  // list of fallback replies
+  // use these when no reply can be generated from the keyword-based transformation rules
+  "none": [
+    "I am not sure I understand you fully.",
+    "Please go on.",
+    "What does that suggest to you?",
+    "Do you feel strongly about discussing such things?"
+  ],
 
   // list of quit commands
   // quit, when one of these is the only input
@@ -18,13 +27,6 @@ export default {
     "done",
     "exit",
     "quit",
-  ],
-
-  "none": [
-    "I am not sure I understand you fully.",
-    "Please go on.",
-    "What does that suggest to you?",
-    "Do you feel strongly about discussing such things?"
   ],
 
   // pre-processing substitutions
@@ -92,14 +94,12 @@ export default {
   //                   when no keywords generate a reply. continue with next
   //                   matching decomposition or keyword.
   "keywords": {
-    "sorry 0": {
-      "*": [
-        "Please don't apologize.",
-        "Apologies are not necessary.",
-        "What feelings do you have when you apologize?",
-        "I've told you that apologies are not required.",
-      ]
-    },
+    "sorry 0": [
+      "Please don't apologize.",
+      "Apologies are not necessary.",
+      "What feelings do you have when you apologize?",
+      "I've told you that apologies are not required.",
+    ],
     
     "remember 5": {
       "* i remember *": [
