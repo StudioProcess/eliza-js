@@ -71,7 +71,7 @@ If you've got a script object already, you can use [make_eliza()](#make_elizascr
 ### make_eliza_async(script_url, options)
 
 Params:
-* `script_url`: URL to script (.mjs with a default export, e.g. [script.mjs](script.mjs))
+* `script_url`: URL to script (.mjs with a default export, e.g. [scripts/example.mjs](scripts/example.mjs))
 * `options`: (optional) object containing one or more of the following options
     * `debug`: (default `false`)
     * `debug_options`: (default `false`)
@@ -100,7 +100,7 @@ Returns:
 ### make_eliza(script, options)
 
 Params:
-* `script`: script object (see e.g. the default export in [script.mjs](script.mjs))
+* `script`: script object (see e.g. the default export in [scripts/example.mjs](scripts/example.mjs))
 * `options`: (optional) see [make_eliza_async()](#make_eliza_asyncscript_url-options)
 
 Returns:
