@@ -10,6 +10,12 @@ Install:
 npm install github:StudioProcess/eliza-js
 ```
 
+### For use in a web project
+
+Single file builds are available in the [build/](build/) folder:
+* [build/eliza.mjs](build/eliza.mjs) (ES Module)
+* [build/eliza.js](build/eliza.js) (CommonJS Module)
+
 ### For development
 
 Requirements:

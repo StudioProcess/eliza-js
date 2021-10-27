@@ -8,7 +8,9 @@
     "dev": "browser-sync . --no-notify",
     "test": "tap test/",
     "test-only": "tap test/ --only",
-    "build": "rollup index.mjs --file eliza.mjs --format es --silent",
+    "build-mjs": "rollup index.mjs --file build/eliza.mjs --format es --silent",
+    "build-cjs": "rollup index.mjs --file build/eliza.js --format cjs --silent",
+    "build": "npm run build-mjs; npm run build-cjs",
     "elizabot": "browser-sync old/elizabot --no-notify",
     "dev-old": "browser-sync . --watch --no-notify --startPath old/",
     "test-old": "tap old/test/"
