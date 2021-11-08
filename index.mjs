@@ -1,10 +1,6 @@
 import * as util from './util.mjs';
 import { parse_script, normalize_input } from './parse.mjs';
-
-// browser adds Math.seedrandom(), node populates seedrandom.default
-import * as seedrandom from './node_modules/seedrandom/seedrandom.js';
-if ('default' in seedrandom) Math.seedrandom = seedrandom.default; // set Math.seedrandom in node
-
+import seedrandom from './lib/seedrandom.mjs';
 
 const default_options = {
   'debug': false,
@@ -54,7 +50,7 @@ export function make_eliza(script, options={}) {
   function reset() {
     quit = false;
     mem = [];
-    rnd = new Math.seedrandom(seed); // initialize rng
+    rnd = new seedrandom(seed); // initialize rng
     last_none = -1;
     last_initial = -1;
     last_final = -1;

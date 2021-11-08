@@ -8,8 +8,8 @@
     "dev": "browser-sync . --no-notify",
     "test": "tap test/",
     "test-only": "tap test/ --only",
-    "build-mjs": "rollup index.mjs --file build/eliza.mjs --format es --silent",
-    "build-cjs": "rollup index.mjs --file build/eliza.js --format cjs --silent",
+    "build-mjs": "rollup index.mjs --file build/eliza.mjs --format es",
+    "build-cjs": "rollup index.mjs --file build/eliza.js --format cjs",
     "build": "npm run build-mjs; npm run build-cjs",
     "elizabot": "browser-sync old/elizabot --no-notify",
     "dev-old": "browser-sync . --watch --no-notify --startPath old/",
@@ -22,13 +22,10 @@
     "node": ">=14.0.0",
     "npm": ">=7.24.0"
   },
-  "main": "eliza.mjs",
+  "main": "index.mjs",
   "devDependencies": {
     "browser-sync": "^2.27.5",
     "rollup": "^2.58.0",
     "tap": "^15.0.10"
-  },
-  "dependencies": {
-    "seedrandom": "^3.0.5"
   }
 }
