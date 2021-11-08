@@ -26,6 +26,7 @@
   <script type="module">
     
     import { make_eliza } from './index.mjs';
+    import { read_eliza_script } from './util.mjs';
     
     const out = document.querySelector('#output');
     const inp = document.querySelector('#input');
@@ -92,13 +93,22 @@
       }
     }
     
+    // Supports JSON (with // comments) and .mjs w/default export
+    async function load_script_fetch(path) {
+      const res = await fetch(path);
+      const text = await res.text();
+      const script = read_eliza_script(text);
+      return script;
+    }
+    
     async function load_script(path) {
       try {
-        script = (await import(path)).default;
+        // let script = (await import(path)).default; // only works for .mjs
+        let script = await load_script_fetch(path);
+        return { success:true, error:null, script };
       } catch (e) {
         return { success:false, error:e, script:null };
       }
-      return { success:true, error:null, script };
     }
     
     async function reset(seed = undefined) {

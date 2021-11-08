@@ -168,6 +168,29 @@ function stringify_node(obj) {
   return obj;
 }
 
+function strip_comments(text) {
+  text = text.replace(/^\s*\/\/.*/gm, ''); // lines beggining with //
+  return text;
+}
+
+function strip_export(text) {
+  text = text.replace(/^\s*export\s+default\s*/, ''); // export default at beginning of file
+  text = text.replace(/;\s*$/, ''); // ending semicolon
+  return text;
+}
+
+function strip_trailing_commas(text) {
+  text = text.replace(/,([\s\r\n]*[\]\}])/g, '$1'); // remove trailing commas in lists [] and objects {}
+  return text;
+}
+
+function read_eliza_script(text) {
+    text = strip_export(text);
+    text = strip_comments(text);
+    text = strip_trailing_commas(text);
+    return JSON.parse(text);
+}
+
 function parse_key(key) {
   key = contract_whitespace("" + key);
   const matches = key.match(/ (-?\d*)$/); // space followed by numbers at end of string
@@ -381,6 +404,10 @@ function normalize_input(text, options) {
 }
 
 /*
+
+*/
+
+/*
 Copyright 2019 David Bau.
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -404,7 +431,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-(function (global, pool, math) {
+
+// _global: `self` in browsers (including strict mode and web workers),
+// otherwise `this` in Node and other environments -> changed to 'global'
+const _global = (typeof self !== 'undefined') ? self : global;
+// pool: entropy pool starts empty
+const pool = [];
+// math: package containing random, pow, and seedrandom
+const math = Math;
+
+
 //
 // The following constants are related to IEEE 754 limits.
 //
@@ -481,7 +517,7 @@ function seedrandom(seed, options, callback) {
       })(
   prng,
   shortseed,
-  'global' in options ? options.global : (this == math),
+  '_global' in options ? options._global : (this == math),
   options.state);
 }
 
@@ -579,13 +615,13 @@ function autoseed() {
       out = out(width);
     } else {
       out = new Uint8Array(width);
-      (global.crypto || global.msCrypto).getRandomValues(out);
+      (_global.crypto || _global.msCrypto).getRandomValues(out);
     }
     return tostring(out);
   } catch (e) {
-    var browser = global.navigator,
+    var browser = _global.navigator,
         plugins = browser && browser.plugins;
-    return [+new Date, global, plugins, global.screen, tostring(pool)];
+    return [+new Date, _global, plugins, _global.screen, tostring(pool)];
   }
 }
 
@@ -611,34 +647,11 @@ mixkey(math.random(), pool);
 // either convention.
 //
 if ((typeof module) == 'object' && module.exports) {
-  module.exports = seedrandom;
   // When in node.js, try using crypto package for autoseeding.
   try {
     nodecrypto = require('crypto');
   } catch (ex) {}
-} else if ((typeof define) == 'function' && define.amd) {
-  define(function() { return seedrandom; });
-} else {
-  // When included as a plain script, set up Math.seedrandom global.
-  math['seed' + rngname] = seedrandom;
 }
-
-
-// End anonymous scope, and pass initial values.
-})(
-  // global: `self` in browsers (including strict mode and web workers),
-  // otherwise `this` in Node and other environments
-  (typeof self !== 'undefined') ? self : undefined,
-  [],     // pool: entropy pool starts empty
-  Math    // math: package containing random, pow, and seedrandom
-);
-
-var seedrandom = /*#__PURE__*/Object.freeze({
-  __proto__: null
-});
-
-if ('default' in seedrandom) Math.seedrandom = undefined; // set Math.seedrandom in node
-
 
 const default_options = {
   'debug': false,
@@ -669,6 +682,12 @@ const default_options = {
 
 function make_eliza(script, options={}) {
   options = Object.assign({}, default_options, options);
+  try {
+    if (type(script) == 'string') script = read_eliza_script(script);
+  } catch (e) {
+    console.warn('string given as script, but parsing as JSON failed');
+    console.warn(e);
+  }
   
   const data = parse_script(script, options);
   options = data.options; // get options after parsing (script can override options)
@@ -688,7 +707,7 @@ function make_eliza(script, options={}) {
   function reset() {
     quit = false;
     mem = [];
-    rnd = new Math.seedrandom(seed); // initialize rng
+    rnd = new seedrandom(seed); // initialize rng
     last_none = -1;
     last_initial = -1;
     last_final = -1;

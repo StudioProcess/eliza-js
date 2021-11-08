@@ -31,6 +31,12 @@ const default_options = {
 
 export function make_eliza(script, options={}) {
   options = Object.assign({}, default_options, options);
+  try {
+    if (util.type(script) == 'string') script = util.read_eliza_script(script);
+  } catch (e) {
+    console.warn('string given as script, but parsing as JSON failed');
+    console.warn(e);
+  }
   
   const data = parse_script(script, options);
   options = data.options; // get options after parsing (script can override options)

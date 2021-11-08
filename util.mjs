@@ -157,3 +157,26 @@ export function stringify_node(obj) {
   if (is_node()) return JSON.stringify(obj);
   return obj;
 }
+
+export function strip_comments(text) {
+  text = text.replace(/^\s*\/\/.*/gm, ''); // lines beggining with //
+  return text;
+}
+
+export function strip_export(text) {
+  text = text.replace(/^\s*export\s+default\s*/, ''); // export default at beginning of file
+  text = text.replace(/;\s*$/, ''); // ending semicolon
+  return text;
+}
+
+export function strip_trailing_commas(text) {
+  text = text.replace(/,([\s\r\n]*[\]\}])/g, '$1'); // remove trailing commas in lists [] and objects {}
+  return text;
+}
+
+export function read_eliza_script(text) {
+    text = strip_export(text);
+    text = strip_comments(text);
+    text = strip_trailing_commas(text);
+    return JSON.parse(text);
+}
