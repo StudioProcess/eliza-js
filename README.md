@@ -106,7 +106,7 @@ Returns:
 ### make_eliza(script, options)
 
 Params:
-* `script`: script object (see e.g. the default export in [scripts/example.mjs](scripts/example.mjs))
+* `script`: script object (see e.g. the default export in [scripts/example.mjs](scripts/example.mjs)) or string. Allowed strings are JSON source text with //-style comments (see [scripts/example.json](scripts/example.json)) or mjs source text with a single default export (see [scripts/example.mjs](scripts/example.mjs)).
 * `options`: (optional) see [make_eliza_async()](#make_eliza_asyncscript_url-options)
 
 Returns:
