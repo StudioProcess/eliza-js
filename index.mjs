@@ -71,18 +71,18 @@ export function make_eliza(script, options={}) {
     last_initial++;
     if (last_initial >= data.initial.length) last_initial = 0;
     if (last_initial == 0) {
-      data.initial = util.shuffle_fixed(data.initial, options.fixed_initial, rnd);
+      data.initial_shuffled = util.shuffle_fixed(data.initial, options.fixed_initial, rnd);
     }
-    return data.initial[ last_initial ];
+    return data.initial_shuffled[ last_initial ];
   }
   
   function get_final() {
     last_final++;
     if (last_final >= data.final.length) last_final = 0;
     if (last_final == 0) {
-      data.final = util.shuffle_fixed(data.final, options.fixed_final, rnd);
+      data.final_shuffled = util.shuffle_fixed(data.final, options.fixed_final, rnd);
     }
-    return data.final[ last_final ];
+    return data.final_shuffled[ last_final ];
   }
   
   function is_quit() {
