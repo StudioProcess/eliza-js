@@ -9,6 +9,7 @@ const default_options = {
   'memory_size': 100,
   'shuffle_choices': false,
   'lowercase_input': true,
+  'lowercase_input_quit': true, // lowercase input when checking for quit phrase (only relevant when lowercase_input is false)
   'lowercase_output': false,
   'seed': -1,
   
@@ -180,6 +181,7 @@ export function make_eliza(script, options={}) {
     // for each part...
     for (let [idx, part] of parts.entries()) {
       // check for quit expression
+      if (options.lowercase_input_quit) part = part.toLowerCase();
       if (data.quit.includes(part)) {
         quit = true;
         return get_final();

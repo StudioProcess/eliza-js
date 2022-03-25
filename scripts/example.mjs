@@ -6,6 +6,8 @@ export default {
     "shuffle_choices": false,
     // transform input text to lowercase
     "lowercase_input": true,
+    // lowercase input when checking for quit phrase (only relevant when lowercase_input is false)
+    "lowercase_input_quit": true,
     // transform output text to lowercase (responses will be fully lowercase)
     "lowercase_output": false,
     // characters that delineate parts of the input

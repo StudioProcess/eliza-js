@@ -85,6 +85,7 @@ Params:
     * `memory_size`: (default `100`)
     * `shuffle_choices`: (default `false`)
     * `lowercase_input`: (default `true`)
+    * `lowercase_input_quit`: (default `true`)
     * `lowercase_output`: (default `false`)
     * `seed`: (default `-1`)
     * `wildcard_marker`: (default `'*'`)
