@@ -186,7 +186,6 @@ export function make_eliza(script, options={}) {
     
     // handle empty inputs
     if (parts.length == 0) {
-      console.log( data.empty )
       if ('empty' in data && data.empty.length > 0) {
         last_empty++;
         if (last_empty >= data.empty.length) last_empty = 0;
@@ -204,8 +203,9 @@ export function make_eliza(script, options={}) {
     // for each part...
     for (let [idx, part] of parts.entries()) {
       // check for quit expression
-      if (options.lowercase_input_quit) part = part.toLowerCase();
-      if (data.quit.includes(part)) {
+      let part_ = part;
+      if (options.lowercase_input_quit) { part_ = part_.toLowerCase(); }
+      if (data.quit.includes(part_)) {
         quit = true;
         return get_final();
       }
