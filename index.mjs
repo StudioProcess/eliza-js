@@ -177,6 +177,18 @@ export function make_eliza(script, options={}) {
     text = normalize_input(text, options); // Note: will not remove stop_chars
     log(' '); 
     log('transforming (normalized):', util.stringify_node(text));
+    
+    // queck for quit* in input
+    for (let quit_phrase of data['quit*']) {
+      let text_ = text;
+      if (options.lowercase_input_quit) { text_ = text_.toLowerCase(); }
+      if (text_.includes(quit_phrase)) {
+        log('quit* phrase found:', quit_phrase);
+        quit = true;
+        return get_final();
+      }
+    }
+    
     let parts = text.split('.');
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');

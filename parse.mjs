@@ -140,6 +140,10 @@ export function parse_script(script, options) {
   util.check_array(script, 'quit', ['string']);
   data.quit = script.quit;
   
+  // quit
+  util.check_array(script, 'quit*', ['string']);
+  data['quit*'] = script['quit*'];
+  
   // none
   util.check_array(script, 'none', ['string']);
   data.none = script.none;

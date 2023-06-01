@@ -49,6 +49,12 @@ export default {
     "See you later."
   ],
   
+  // list of replies for empty queries
+  "empty": [
+    "You are saying nothing?",
+    "Say something!"
+  ],
+  
   // list of fallback replies
   // use these when no reply can be generated from the keyword-based transformation rules
   "none": [
@@ -57,21 +63,20 @@ export default {
     "What does that suggest to you?",
     "Do you feel strongly about discussing such things?"
   ],
-  
-  // list of replies for empty queries
-  "empty": [
-    "You are saying nothing?",
-    "Say something!"
-  ],
 
   // list of quit commands
-  // quit, when one of these is the only input
+  // quit, if one of these is the *only* input (or part)
   "quit": [
     "bye",
     "goodbye",
     "done",
     "exit",
     "quit",
+  ],
+  
+  // quit, if one of these occurs *anywhere* in the input
+  "quit*": [
+    "quit right now",
   ],
 
   // pre-processing substitutions
