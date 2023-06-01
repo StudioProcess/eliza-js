@@ -12,8 +12,6 @@ const default_options = {
   'lowercase_input_quit': true, // lowercase input when checking for quit phrase (only relevant when lowercase_input is false)
   'lowercase_output': false,
   'seed': -1,
-  'reverse_parts': false,
-  'shuffle_parts': false,
   
   'wildcard_marker': '*',
   'tag_marker': '#',
@@ -28,7 +26,10 @@ const default_options = {
   'fallback_reply': 'I am at a loss for words.',
   
   'fixed_initial': 0,
-  'fixed_final': 0
+  'fixed_final': 0,
+  
+  'reverse_parts': false,
+  'shuffle_parts': false,
 };
 
 

@@ -28,10 +28,10 @@ export default {
     // sometimes the parts the bot should react to are at the end of the sentence
     // this option will cause the parts to be processed backwards
     // has no effect, if shuffle_parts is true
-    "reverse_parts": true,
+    "reverse_parts": false,
     // causes parts to be processed in random order
     // overrides reverse_parts
-    "shuffle_parts": true,
+    "shuffle_parts": false,
   },
 
   // list of initial sentences from eliza (randomly chosen)

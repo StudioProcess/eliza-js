@@ -100,6 +100,8 @@ Params:
     * `fallback_reply`: (default `'I am at a loss for words.'`)
     * `fixed_initial`: (default: `0`)
     * `fixed_final`: (default: `0`)
+    * `reverse_parts`: (default: `false`)
+    * `shuffle_parts`: (default: `false`)
 
 Returns: 
 * Promise that resolves with an [ElizaInstance](#elizainstance) object
