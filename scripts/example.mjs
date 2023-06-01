@@ -49,6 +49,12 @@ export default {
     "What does that suggest to you?",
     "Do you feel strongly about discussing such things?"
   ],
+  
+  // list of replies for empty queries
+  "empty": [
+    "You are saying nothing?",
+    "Say something!"
+  ],
 
   // list of quit commands
   // quit, when one of these is the only input

@@ -52,13 +52,14 @@ export function make_eliza(script, options={}) {
   const seed = options.seed < 0 ? undefined : options.seed;
   
   // variables
-  let quit, mem, rnd, last_none, last_initial, last_final;
+  let quit, mem, rnd, last_none, last_empty, last_initial, last_final;
   
   function reset() {
     quit = false;
     mem = [];
     rnd = new seedrandom(seed); // initialize rng
     last_none = -1;
+    last_empty = -1;
     last_initial = -1;
     last_final = -1;
     for (let k of data.keywords) {
@@ -177,6 +178,23 @@ export function make_eliza(script, options={}) {
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');
     log('parts:', parts);
+    
+    // handle empty inputs
+    if (parts.length == 0) {
+      console.log( data.empty )
+      if ('empty' in data && data.empty.length > 0) {
+        last_empty++;
+        if (last_empty >= data.empty.length) last_empty = 0;
+        if (last_empty == 0 && options.shuffle_choices) {
+          data.empty = util.shuffle(data.empty, rnd);
+        }
+        const reply = data.empty[last_empty];
+        if (reply != '') {
+          log('using empty reply:', util.stringify_node(reply));
+          return reply;
+        }
+      }
+    }
     
     // for each part...
     for (let [idx, part] of parts.entries()) {

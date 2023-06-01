@@ -144,6 +144,10 @@ export function parse_script(script, options) {
   util.check_array(script, 'none', ['string']);
   data.none = script.none;
   
+  // empty
+  util.check_array(script, 'empty', ['string']);
+  data.empty = script.empty;
+  
   // pre
   util.check_object(script, 'pre', ['string']);
   data.pre = util.map_obj_keys(script.pre, util.contract_whitespace);
