@@ -12,6 +12,8 @@ const default_options = {
   'lowercase_input_quit': true, // lowercase input when checking for quit phrase (only relevant when lowercase_input is false)
   'lowercase_output': false,
   'seed': -1,
+  'reverse_parts': false,
+  'shuffle_parts': false,
   
   'wildcard_marker': '*',
   'tag_marker': '#',
@@ -177,6 +179,8 @@ export function make_eliza(script, options={}) {
     let parts = text.split('.');
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');
+    if (options.reverse_parts) { parts.reverse(); }
+    if (options.shuffle_parts) { parts = util.shuffle(parts, rnd); }
     log('parts:', parts);
     
     // handle empty inputs
