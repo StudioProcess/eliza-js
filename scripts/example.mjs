@@ -151,9 +151,13 @@ export default {
     "how": "= what",
     "alike 10": "= dit",
     "certainly": "= yes",
+    
     "😀 5": "Are you happy?",
     "scheiße": "EXCUSE ME?",
     "weiß": "What DO you know?",
+    "noe": "YES!",
+    "hä": "Wie bitte?!",
+    "hätten": "Hättiwari!",
     
     // form 2
     "sorry 5": [
