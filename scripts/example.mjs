@@ -81,7 +81,7 @@ export default {
   ],
 
   // pre-processing substitutions
-  // applied to the input string
+  // applied to the input string, matches *complete words*
   "pre": {
     "dont": "don't",
     "cant": "can't",
@@ -96,7 +96,7 @@ export default {
   },
 
   // post-processing substitutions
-  // applied to parameters during reassembly
+  // applied to parameters during reassembly, matches *complete words*
   "post": {
     "am": "are",
     "your": "my",
@@ -152,6 +152,8 @@ export default {
     "alike 10": "= dit",
     "certainly": "= yes",
     "😀 5": "Are you happy?",
+    "scheiße": "EXCUSE ME?",
+    "weiß": "What DO you know?",
     
     // form 2
     "sorry 5": [

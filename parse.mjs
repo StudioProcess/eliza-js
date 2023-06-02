@@ -167,11 +167,15 @@ export function parse_script(script, options) {
   // patterns (regexes)
   data.pre_pattern = '';
   if (! util.obj_empty(data.pre) ) {
-    data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
+    // data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
+    // word boundaries (\b) only work with basic latin characters (not ß, umlauts etc.)
+    // -> use non-capturing (?:), whitespace or start/end of input as boundary
+    data.pre_pattern = `(?:^|\\s)(${Object.keys(data.pre).map(util.regex_escape).join('|')})(?:$|\\s)`;
   }
   data.post_pattern = '';
   if (! util.obj_empty(data.post) ) {
-    data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+    // data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+    data.post_pattern = `(?:^|\\s)(${Object.keys(data.post).map(util.regex_escape).join('|')})(?:$|\\s)`;
   }
   data.tag_patterns = Object.fromEntries(
     Object.entries(data.tags).map( ([tag, tagged_words]) => {

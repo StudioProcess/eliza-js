@@ -224,17 +224,17 @@ export function make_eliza(script, options={}) {
       }
       // pre-process
       if (data.pre_pattern) { // could be empty
-        const pre_regex = new RegExp(data.pre_pattern, 'giu');
-        part = part.replace(pre_regex, (match, p1) => data.pre[p1.toLowerCase()]);
+        const pre_regex = new RegExp(data.pre_pattern, 'gu');
+        part = part.replace(pre_regex, (match, p1) => data.pre[p1]);
       }
       // look for keywords
       for (const keyword of data.keywords) {
         let key_regex;
         if (options.allow_emoji) {
-          // Regex using whitespace + start/end of input to support emoji (emoji are non-word characters)
+          // Regex using whitespace or start/end of input to support emoji (emoji are non-word characters)
           key_regex = new RegExp(`(^|\\s)${util.regex_escape(keyword.key)}($|\\s)`, 'iu'); 
         } else {
-          // Original Regx using word boundaries
+          // Original Regex using word boundaries
           key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'iu');
         }
         if ( key_regex.test(part) ) {
