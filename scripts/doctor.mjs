@@ -24,7 +24,7 @@ export default {
   ],
 
   // list of quit commands
-  // quit, when one of these is the only input
+  // quit, when one of these is the *only* input (or part)
   "quit": [
     "bye",
     "goodbye",
@@ -38,7 +38,7 @@ export default {
   ],
 
   // pre-processing substitutions
-  // applied to the input string
+  // applied to the input string, matches *complete words*
   "pre": {
     "dont": "don't",
     "cant": "can't",
@@ -50,6 +50,10 @@ export default {
     "you're": "you are",
     "mom": "mother",
     "dad": "father",
+  },
+  
+  // applied to the input string, matches *anywhere*, even within words
+  "pre*": {
   },
 
   // post-processing substitutions

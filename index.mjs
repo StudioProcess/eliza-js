@@ -227,6 +227,10 @@ export function make_eliza(script, options={}) {
         const pre_regex = new RegExp(data.pre_pattern, 'gu');
         part = part.replace(pre_regex, (match, p1) => data.pre[p1]);
       }
+      if (data['pre*_pattern']) { // could be empty
+        const pre_regex = new RegExp(data['pre*_pattern'], 'gu');
+        part = part.replace(pre_regex, (match, p1) => data['pre*'][p1]);
+      }
       // look for keywords
       for (const keyword of data.keywords) {
         let key_regex;

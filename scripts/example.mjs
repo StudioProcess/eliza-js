@@ -94,7 +94,12 @@ export default {
     "mom": "mother",
     "dad": "father",
   },
-
+  
+  // applied to the input string, matches *anywhere*, even within words
+  "pre*": {
+    "ö": "oe",
+  },
+  
   // post-processing substitutions
   // applied to parameters during reassembly, matches *complete words*
   "post": {
@@ -158,6 +163,7 @@ export default {
     "noe": "YES!",
     "hä": "Wie bitte?!",
     "hätten": "Hättiwari!",
+    "oesterreich": "Alpenland",
     
     // form 2
     "sorry 5": [

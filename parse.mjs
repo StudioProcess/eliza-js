@@ -140,7 +140,7 @@ export function parse_script(script, options) {
   util.check_array(script, 'quit', ['string']);
   data.quit = script.quit;
   
-  // quit
+  // quit*
   util.check_array(script, 'quit*', ['string']);
   data['quit*'] = script['quit*'];
   
@@ -155,6 +155,10 @@ export function parse_script(script, options) {
   // pre
   util.check_object(script, 'pre', ['string']);
   data.pre = util.map_obj_keys(script.pre, util.contract_whitespace);
+  
+  // pre*
+  util.check_object(script, 'pre*', ['string']);
+  data['pre*'] = util.map_obj_keys(script['pre*'], util.contract_whitespace);
   
   // post
   util.check_object(script, 'post', ['string']);
@@ -171,6 +175,10 @@ export function parse_script(script, options) {
     // word boundaries (\b) only work with basic latin characters (not ß, umlauts etc.)
     // -> use non-capturing (?:), whitespace or start/end of input as boundary
     data.pre_pattern = `(?:^|\\s)(${Object.keys(data.pre).map(util.regex_escape).join('|')})(?:$|\\s)`;
+  }
+  data['pre*_pattern'] = '';
+  if (! util.obj_empty(data['pre*']) ) {
+    data['pre*_pattern'] = `(${Object.keys(data['pre*']).map(util.regex_escape).join('|')})`;
   }
   data.post_pattern = '';
   if (! util.obj_empty(data.post) ) {
