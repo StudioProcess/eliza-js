@@ -10,6 +10,10 @@ export default {
     "Goodbye."
   ],
   
+  // list of replies for empty queries
+  "empty": [
+  ],
+  
   // list of fallback replies
   // use these when no reply can be generated from the keyword-based transformation rules
   "none": [
@@ -27,6 +31,10 @@ export default {
     "done",
     "exit",
     "quit",
+  ],
+  
+  // quit, if one of these occurs *anywhere* in the input
+  "quit*": [
   ],
 
   // pre-processing substitutions
