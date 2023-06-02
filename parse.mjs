@@ -15,14 +15,14 @@ export function parse_key(key) {
 
 export function get_decomp_pattern(decomp, tag_patterns={}, tag_marker='#', wildcard_marker='*') {
   // expand tags
-  const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'gi' ); // match all tags eg. #happy in "* i am * #happy *"
+  const tag_re = new RegExp( `${util.regex_escape(tag_marker)}(\\S+)`, 'giu' ); // match all tags eg. #happy in "* i am * #happy *"
   let out = decomp.replace(tag_re, (match, p1) => {
     if ( Object.keys(tag_patterns).includes(p1) ) return tag_patterns[p1]; // replace with tag regex pattern
     return p1; // remove tag marker
   });
   
   // expand wildcard expressions
-  const wild_re = new RegExp( `\\s*${util.regex_escape(wildcard_marker)}\\s*`, 'g' );
+  const wild_re = new RegExp( `\\s*${util.regex_escape(wildcard_marker)}\\s*`, 'gu' );
   out = out.replace(wild_re, (match, offset, string) => {
     // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
     // Note: this can include trailing whitespace into the capture group -> trim later
@@ -207,15 +207,22 @@ export function normalize_input(text, options) {
   
   // ignore all characters that arent explicitly allowed
   // A-Z 0-9 and space are always allowed (as well as stop chars)
-  const ignore_pattern = '[^a-zA-Z0-9 ' 
+  const ignore_pattern = '[^a-zA-Z0-9 '
     + util.regex_escape(options.allow_chars)
     + util.regex_escape(options.stop_chars)
+    // This doesn't work on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
+    + ((options.allow_emoji && !util.has_regex_emoji_bug()) ? '\\p{Emoji_Presentation}' : '')
     + ']';
-  text = text.replace(new RegExp(ignore_pattern, 'g'), ' ');
+  text = text.replace(new RegExp(ignore_pattern, 'gu'), ' ');
+  // separate emoji by spaces (no need to check for bug, this works)
+  if (options.allow_emoji) {
+    text = text.replace(new RegExp('\\p{Emoji_Presentation}', 'gu'), ' $& ');
+  }
   text = util.contract_whitespace(text);
   const stop_pattern = '[' + util.regex_escape(options.stop_chars) + ']';
-  text = text.replace(new RegExp(stop_pattern, 'g'), '.');
+  text = text.replace(new RegExp(stop_pattern, 'gu'), '.');
   const stop_word_pattern = '\\b(' + options.stop_words.map(util.regex_escape).join('|') + ')\\b';
-  text = text.replace(new RegExp(stop_word_pattern, 'g'), '.');
+  text = text.replace(new RegExp(stop_word_pattern, 'gu'), '.');
+
   return text;
 }

@@ -180,3 +180,9 @@ export function read_eliza_script(text) {
     text = strip_trailing_commas(text);
     return JSON.parse(text);
 }
+
+// https://bugs.webkit.org/show_bug.cgi?id=205477
+// Negative regex with surrogate pairs doesn't work on Safari (Desktop, Mobile)
+export function has_regex_emoji_bug() {
+  return '😀'.replace(new RegExp('[^😀]', 'gu'), '') !== '😀';
+}

@@ -20,6 +20,7 @@ export default {
     // everything else will be removed
     // A-Z, a-z, 0-9 are always allowed
     "allow_chars": "'äöüß-",
+    "allow_emoji": true,
     // how many initial responses remain fixed (not chosen randomly)
     "fixed_initial": 2,
     // how many final responses remain fixed (not chosen randomly)
@@ -150,6 +151,7 @@ export default {
     "how": "= what",
     "alike 10": "= dit",
     "certainly": "= yes",
+    "😀 5": "Are you happy?",
     
     // form 2
     "sorry 5": [

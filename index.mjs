@@ -23,6 +23,7 @@ const default_options = {
   'stop_chars': '.,;:?!',
   'stop_words': ['but'],
   'allow_chars': '\'äöüß-',
+  "allow_emoji": true,
   'fallback_reply': 'I am at a loss for words.',
   
   'fixed_initial': 0,
@@ -119,7 +120,7 @@ export function make_eliza(script, options={}) {
     // iterate through all rules in the keyword (decomp -> reasmb)
     for (const [idx, rule] of keyword.rules.entries()) {
       // check if decomp rule matches input
-      const decomp_regex = new RegExp(rule.decomp_pattern, 'i');
+      const decomp_regex = new RegExp(rule.decomp_pattern, 'iu');
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
         log('rule ' + idx + ' matched:', rule)
@@ -134,7 +135,7 @@ export function make_eliza(script, options={}) {
         log('reasmb ' + reasmb_idx + ' chosen:', util.stringify_node(reasmb));
         // detect goto directive
         // matches goto marker (optional whitespace) then the keyword to go to
-        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)', 'i');
+        const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)', 'iu');
         const goto_match = reasmb.match(goto_regex);
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );
@@ -145,7 +146,7 @@ export function make_eliza(script, options={}) {
         }
         // substitute positional parameters in reassembly rule
         let reply = reasmb;
-        const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'g');
+        const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'gu');
         reply = reply.replace(param_regex, (match, p1) => {
           const param = parseInt(p1);
           if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
@@ -156,7 +157,7 @@ export function make_eliza(script, options={}) {
           // post-process param value
           let val_post = val;
           if (data.post_pattern) { // could be empty
-            const post_regex = new RegExp(data.post_pattern, 'gi');
+            const post_regex = new RegExp(data.post_pattern, 'giu');
             val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
           }
           log('param (' + param + '):', util.stringify_node(val), '->', util.stringify_node(val_post));
@@ -223,12 +224,19 @@ export function make_eliza(script, options={}) {
       }
       // pre-process
       if (data.pre_pattern) { // could be empty
-        const pre_regex = new RegExp(data.pre_pattern, 'gi');
+        const pre_regex = new RegExp(data.pre_pattern, 'giu');
         part = part.replace(pre_regex, (match, p1) => data.pre[p1.toLowerCase()]);
       }
       // look for keywords
       for (const keyword of data.keywords) {
-        const key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'i');
+        let key_regex;
+        if (options.allow_emoji) {
+          // Regex using whitespace + start/end of input to support emoji (emoji are non-word characters)
+          key_regex = new RegExp(`(^|\\s)${util.regex_escape(keyword.key)}($|\\s)`, 'iu'); 
+        } else {
+          // Original Regx using word boundaries
+          key_regex = new RegExp(`\\b${util.regex_escape(keyword.key)}\\b`, 'iu');
+        }
         if ( key_regex.test(part) ) {
           log('keyword found (in part ' + idx + '):', keyword);
           const reply = exec_rule(keyword, part);
