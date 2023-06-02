@@ -9,7 +9,8 @@ export function type(x) {
   return typeof x;
 }
 
-export function check_array(script, prop, allow_types=null) {
+export function check_array(script, prop, allow_types=null, optional=false) {
+  if (optional && !script.hasOwnProperty(prop)) { return; }
   if ( ! script.hasOwnProperty(prop) ) {
     script_error(`script is missing '${prop}'`);
   }
@@ -26,7 +27,8 @@ export function check_array(script, prop, allow_types=null) {
   }
 }
 
-export function check_object(script, prop, allow_types=null) {
+export function check_object(script, prop, allow_types=null, optional=false) {
+  if (optional && !script.hasOwnProperty(prop)) { return; }
   if ( ! script.hasOwnProperty(prop) ) {
     script_error(`script is missing '${prop}'`);
   }

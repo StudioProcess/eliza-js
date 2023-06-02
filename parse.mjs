@@ -141,24 +141,33 @@ export function parse_script(script, options) {
   data.quit = script.quit;
   
   // quit*
-  util.check_array(script, 'quit*', ['string']);
-  data['quit*'] = script['quit*'];
+  util.check_array(script, 'quit*', ['string'], true); // optional
+  data['quit*'] = [];
+  if ('quit*' in script) {
+    data['quit*'] = script['quit*'];
+  }
   
   // none
   util.check_array(script, 'none', ['string']);
   data.none = script.none;
   
   // empty
-  util.check_array(script, 'empty', ['string']);
-  data.empty = script.empty;
+  util.check_array(script, 'empty', ['string'], true); // optional
+  data.empty = [];
+  if ('empty' in script) {
+    data.empty = script.empty;
+  }
   
   // pre
   util.check_object(script, 'pre', ['string']);
   data.pre = util.map_obj_keys(script.pre, util.contract_whitespace);
   
   // pre*
-  util.check_object(script, 'pre*', ['string']);
-  data['pre*'] = util.map_obj_keys(script['pre*'], util.contract_whitespace);
+  util.check_object(script, 'pre*', ['string'], true); // optional
+  data['pre*'] = {};
+  if ('pre*' in script) {
+    data['pre*'] = util.map_obj_keys(script['pre*'], util.contract_whitespace);
+  }
   
   // post
   util.check_object(script, 'post', ['string']);
