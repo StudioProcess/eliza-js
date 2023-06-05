@@ -169,6 +169,12 @@ export default {
       "* überhaupt *": "Überhaupt OK",
     },
     
+    // remember flag (@) with jump (=)
+    "where": {
+      "@ *": "= what",
+      "*": "I understand"
+    },
+    
     // form 2
     "sorry 5": [
       "Please don't apologize.",

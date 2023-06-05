@@ -137,32 +137,36 @@ export function make_eliza(script, options={}) {
         // matches goto marker (optional whitespace) then the keyword to go to
         const goto_regex = RegExp('^' + util.regex_escape(options.goto_marker) + '\\s*(.*)', 'iu');
         const goto_match = reasmb.match(goto_regex);
+        
+        let reply = '';
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );
           if (goto_key !== undefined) {
             log('jumping to keyword:', util.stringify_node(goto_key));
-            return exec_rule(goto_key, text);
+            reply = exec_rule(goto_key, text); // Don't immediately return reply, could have memory flag
           }
+        } else { // no goto match
+          // substitute positional parameters in reassembly rule
+          reply = reasmb;
+          const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'gu');
+          reply = reply.replace(param_regex, (match, p1) => {
+            const param = parseInt(p1);
+            if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
+            // tags are counted as params as well, since they are a capture group in the decomp pattern!
+            let val = decomp_match[param]; // capture groups start at idx 1, params as well!
+            if (val === undefined) return '';
+            val = val.trim();
+            // post-process param value
+            let val_post = val;
+            if (data.post_pattern) { // could be empty
+              const post_regex = new RegExp(data.post_pattern, 'giu');
+              val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
+            }
+            log('param (' + param + '):', util.stringify_node(val), '->', util.stringify_node(val_post));
+            return val_post;
+          });
         }
-        // substitute positional parameters in reassembly rule
-        let reply = reasmb;
-        const param_regex = new RegExp(util.regex_escape(options.param_marker_pre) + '([0-9]+)' + util.regex_escape(options.param_marker_post), 'gu');
-        reply = reply.replace(param_regex, (match, p1) => {
-          const param = parseInt(p1);
-          if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
-          // tags are counted as params as well, since they are a capture group in the decomp pattern!
-          let val = decomp_match[param]; // capture groups start at idx 1, params as well!
-          if (val === undefined) return '';
-          val = val.trim();
-          // post-process param value
-          let val_post = val;
-          if (data.post_pattern) { // could be empty
-            const post_regex = new RegExp(data.post_pattern, 'giu');
-            val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
-          }
-          log('param (' + param + '):', util.stringify_node(val), '->', util.stringify_node(val_post));
-          return val_post;
-        });
+        
         reply = reply.trim();
         if (rule.mem_flag) {
           mem_push(reply); // don't use this reply now, save it
