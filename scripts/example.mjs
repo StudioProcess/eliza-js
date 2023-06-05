@@ -165,6 +165,10 @@ export default {
     "hätten": "Hättiwari!",
     "oesterreich": "Alpenland",
     
+    "überhaupt": {
+      "* überhaupt *": "Überhaupt OK",
+    },
+    
     // form 2
     "sorry 5": [
       "Please don't apologize.",

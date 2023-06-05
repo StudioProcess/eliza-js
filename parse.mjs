@@ -26,17 +26,27 @@ export function get_decomp_pattern(decomp, tag_patterns={}, tag_marker='#', wild
   out = out.replace(wild_re, (match, offset, string) => {
     // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
     // Note: this can include trailing whitespace into the capture group -> trim later
-    let pattern = '(.*)'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
+    // Word boundary markers (\b) only work with basic latin (no umlauts etc.) -> Replaced by detecting whitespace (or beginning/end of string) instead
+    let pattern = '(.*)'; // only one wildcard
     if (match.length !== string.length) { // there's more than the wildcard
       if (offset == 0) {
-        // wildcard is at the beginning: append word boundary marker
-        pattern = pattern + '\\b'; 
+        // Old: wildcard is at the beginning: append word boundary marker
+        // pattern = pattern + '\\b';
+        
+        // wildcard is at the beginning: capture everything until a whitespace (or beginning of string)
+        pattern = '(.*\\s)?'; // ^ will be prepended below
       } else if (offset + match.length == string.length) {
-        // wildcard is at the end: prepend word boundary marker
-        pattern = '\\b' + pattern; 
+        // Old: wildcard is at the end: prepend word boundary marker
+        // pattern = '\\b' + pattern; 
+        
+        // wildcard is at the end: capture whitespace and continue till the end (or immediate end)
+        pattern = '(\\s.*)?'; // $ will be added below
       } else {
         // wildcard is in the middle: markers on both sides
-        pattern = '\\b' + pattern + '\\b';
+        // pattern = '\\b' + pattern + '\\b';
+        
+        // wildcard is in the middle: there needs to be at least one whitespace somewhere
+        pattern = '(.*\\s.*)';
       }
     }
     return pattern;
