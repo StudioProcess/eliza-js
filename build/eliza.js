@@ -31,7 +31,8 @@ function type(x) {
   return typeof x;
 }
 
-function check_array(script, prop, allow_types=null) {
+function check_array(script, prop, allow_types=null, optional=false) {
+  if (optional && !script.hasOwnProperty(prop)) { return; }
   if ( ! script.hasOwnProperty(prop) ) {
     script_error(`script is missing '${prop}'`);
   }
@@ -48,7 +49,8 @@ function check_array(script, prop, allow_types=null) {
   }
 }
 
-function check_object(script, prop, allow_types=null) {
+function check_object(script, prop, allow_types=null, optional=false) {
+  if (optional && !script.hasOwnProperty(prop)) { return; }
   if ( ! script.hasOwnProperty(prop) ) {
     script_error(`script is missing '${prop}'`);
   }
@@ -206,28 +208,38 @@ function parse_key(key) {
 
 function get_decomp_pattern(decomp, tag_patterns={}, tag_marker='#', wildcard_marker='*') {
   // expand tags
-  const tag_re = new RegExp( `${regex_escape(tag_marker)}(\\S+)`, 'gi' ); // match all tags eg. #happy in "* i am * #happy *"
+  const tag_re = new RegExp( `${regex_escape(tag_marker)}(\\S+)`, 'giu' ); // match all tags eg. #happy in "* i am * #happy *"
   let out = decomp.replace(tag_re, (match, p1) => {
     if ( Object.keys(tag_patterns).includes(p1) ) return tag_patterns[p1]; // replace with tag regex pattern
     return p1; // remove tag marker
   });
   
   // expand wildcard expressions
-  const wild_re = new RegExp( `\\s*${regex_escape(wildcard_marker)}\\s*`, 'g' );
+  const wild_re = new RegExp( `\\s*${regex_escape(wildcard_marker)}\\s*`, 'gu' );
   out = out.replace(wild_re, (match, offset, string) => {
     // We need word boundary markers, so decomp='* you * me *' does NOT match "what do you mean."
     // Note: this can include trailing whitespace into the capture group -> trim later
-    let pattern = '(.*)'; // TODO: could we get rid of the \\s* ? we will ever have at most one whitespace there and will trim anyway
+    // Word boundary markers (\b) only work with basic latin (no umlauts etc.) -> Replaced by detecting whitespace (or beginning/end of string) instead
+    let pattern = '(.*)'; // only one wildcard
     if (match.length !== string.length) { // there's more than the wildcard
       if (offset == 0) {
-        // wildcard is at the beginning: append word boundary marker
-        pattern = pattern + '\\b'; 
+        // Old: wildcard is at the beginning: append word boundary marker
+        // pattern = pattern + '\\b';
+        
+        // wildcard is at the beginning: capture everything until a whitespace (or beginning of string)
+        pattern = '(.*\\s)?'; // ^ will be prepended below
       } else if (offset + match.length == string.length) {
-        // wildcard is at the end: prepend word boundary marker
-        pattern = '\\b' + pattern; 
+        // Old: wildcard is at the end: prepend word boundary marker
+        // pattern = '\\b' + pattern; 
+        
+        // wildcard is at the end: capture whitespace and continue till the end (or immediate end)
+        pattern = '(\\s.*)?'; // $ will be added below
       } else {
         // wildcard is in the middle: markers on both sides
-        pattern = '\\b' + pattern + '\\b';
+        // pattern = '\\b' + pattern + '\\b';
+        
+        // wildcard is in the middle: there needs to be at least one whitespace somewhere
+        pattern = '(.*\\s.*)';
       }
     }
     return pattern;
@@ -331,13 +343,34 @@ function parse_script(script, options) {
   check_array(script, 'quit', ['string']);
   data.quit = script.quit;
   
+  // quit*
+  check_array(script, 'quit*', ['string'], true); // optional
+  data['quit*'] = [];
+  if ('quit*' in script) {
+    data['quit*'] = script['quit*'];
+  }
+  
   // none
   check_array(script, 'none', ['string']);
   data.none = script.none;
   
+  // empty
+  check_array(script, 'empty', ['string'], true); // optional
+  data.empty = [];
+  if ('empty' in script) {
+    data.empty = script.empty;
+  }
+  
   // pre
   check_object(script, 'pre', ['string']);
   data.pre = map_obj_keys(script.pre, contract_whitespace);
+  
+  // pre*
+  check_object(script, 'pre*', ['string'], true); // optional
+  data['pre*'] = {};
+  if ('pre*' in script) {
+    data['pre*'] = map_obj_keys(script['pre*'], contract_whitespace);
+  }
   
   // post
   check_object(script, 'post', ['string']);
@@ -350,11 +383,19 @@ function parse_script(script, options) {
   // patterns (regexes)
   data.pre_pattern = '';
   if (! obj_empty(data.pre) ) {
-    data.pre_pattern = `\\b(${Object.keys(data.pre).map(regex_escape).join('|')})\\b`;
+    // data.pre_pattern = `\\b(${Object.keys(data.pre).map(util.regex_escape).join('|')})\\b`;
+    // word boundaries (\b) only work with basic latin characters (not ß, umlauts etc.)
+    // -> use non-capturing (?:), whitespace or start/end of input as boundary
+    data.pre_pattern = `(?:^|\\s)(${Object.keys(data.pre).map(regex_escape).join('|')})(?:$|\\s)`;
+  }
+  data['pre*_pattern'] = '';
+  if (! obj_empty(data['pre*']) ) {
+    data['pre*_pattern'] = `(${Object.keys(data['pre*']).map(regex_escape).join('|')})`;
   }
   data.post_pattern = '';
   if (! obj_empty(data.post) ) {
-    data.post_pattern = `\\b(${Object.keys(data.post).map(regex_escape).join('|')})\\b`;
+    // data.post_pattern = `\\b(${Object.keys(data.post).map(util.regex_escape).join('|')})\\b`;
+    data.post_pattern = `(?:^|\\s)(${Object.keys(data.post).map(regex_escape).join('|')})(?:$|\\s)`;
   }
   data.tag_patterns = Object.fromEntries(
     Object.entries(data.tags).map( ([tag, tagged_words]) => {
@@ -390,21 +431,40 @@ function normalize_input(text, options) {
   
   // ignore all characters that arent explicitly allowed
   // A-Z 0-9 and space are always allowed (as well as stop chars)
-  const ignore_pattern = '[^a-zA-Z0-9 ' 
+  // const ignore_pattern = '[^a-zA-Z0-9 '
+  //   + util.regex_escape(options.allow_chars)
+  //   + util.regex_escape(options.stop_chars)
+  //   // This doesn't work on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
+  //   + ((options.allow_emoji && !util.has_regex_emoji_bug()) ? '\\p{Emoji_Presentation}' : '')
+  //   + ']';
+  // text = text.replace(new RegExp(ignore_pattern, 'gu'), ' ');
+  
+  // Use a positive match and join all the matches, instead of a negative replace
+  // Negative match doesn't work with emoji on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
+  const allow_pattern = '[a-zA-Z0-9 '
     + regex_escape(options.allow_chars)
     + regex_escape(options.stop_chars)
-    + ']';
-  text = text.replace(new RegExp(ignore_pattern, 'g'), ' ');
+    + (options.allow_emoji ? '\\p{Emoji_Presentation}' : '')
+    + ']+'; // match strings of allowed chars
+  const match = text.match(new RegExp(allow_pattern, 'gu'));
+  text = match.join(' ');
+  // separate emoji by spaces (no need to check for bug, this works)
+  if (options.allow_emoji) {
+    text = text.replace(new RegExp('\\p{Emoji_Presentation}', 'gu'), ' $& ');
+  }
+  
   text = contract_whitespace(text);
   const stop_pattern = '[' + regex_escape(options.stop_chars) + ']';
-  text = text.replace(new RegExp(stop_pattern, 'g'), '.');
+  text = text.replace(new RegExp(stop_pattern, 'gu'), '.');
   const stop_word_pattern = '\\b(' + options.stop_words.map(regex_escape).join('|') + ')\\b';
-  text = text.replace(new RegExp(stop_word_pattern, 'g'), '.');
+  text = text.replace(new RegExp(stop_word_pattern, 'gu'), '.');
+
   return text;
 }
 
 /*
-
+  2021-11-08 
+  Adapted as ES6 Module by Martin Grödl <martin@process.studio>
 */
 
 /*
@@ -433,7 +493,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 // _global: `self` in browsers (including strict mode and web workers),
-// otherwise `this` in Node and other environments -> changed to 'global'
+// otherwise `this` in Node and other environments
+// Note (2021-11-08): 'this' changed to 'global'
 const _global = (typeof self !== 'undefined') ? self : global;
 // pool: entropy pool starts empty
 const pool = [];
@@ -660,6 +721,7 @@ const default_options = {
   'memory_size': 100,
   'shuffle_choices': false,
   'lowercase_input': true,
+  'lowercase_input_quit': true, // lowercase input when checking for quit phrase (only relevant when lowercase_input is false)
   'lowercase_output': false,
   'seed': -1,
   
@@ -673,10 +735,14 @@ const default_options = {
   'stop_chars': '.,;:?!',
   'stop_words': ['but'],
   'allow_chars': '\'äöüß-',
+  "allow_emoji": true,
   'fallback_reply': 'I am at a loss for words.',
   
   'fixed_initial': 0,
-  'fixed_final': 0
+  'fixed_final': 0,
+  
+  'reverse_parts': false,
+  'shuffle_parts': false,
 };
 
 
@@ -702,13 +768,14 @@ function make_eliza(script, options={}) {
   const seed = options.seed < 0 ? undefined : options.seed;
   
   // variables
-  let quit, mem, rnd, last_none, last_initial, last_final;
+  let quit, mem, rnd, last_none, last_empty, last_initial, last_final;
   
   function reset() {
     quit = false;
     mem = [];
     rnd = new seedrandom(seed); // initialize rng
     last_none = -1;
+    last_empty = -1;
     last_initial = -1;
     last_final = -1;
     for (let k of data.keywords) {
@@ -722,18 +789,18 @@ function make_eliza(script, options={}) {
     last_initial++;
     if (last_initial >= data.initial.length) last_initial = 0;
     if (last_initial == 0) {
-      data.initial = shuffle_fixed(data.initial, options.fixed_initial, rnd);
+      data.initial_shuffled = shuffle_fixed(data.initial, options.fixed_initial, rnd);
     }
-    return data.initial[ last_initial ];
+    return data.initial_shuffled[ last_initial ];
   }
   
   function get_final() {
     last_final++;
     if (last_final >= data.final.length) last_final = 0;
     if (last_final == 0) {
-      data.final = shuffle_fixed(data.final, options.fixed_final, rnd);
+      data.final_shuffled = shuffle_fixed(data.final, options.fixed_final, rnd);
     }
-    return data.final[ last_final ];
+    return data.final_shuffled[ last_final ];
   }
   
   function is_quit() {
@@ -765,7 +832,7 @@ function make_eliza(script, options={}) {
     // iterate through all rules in the keyword (decomp -> reasmb)
     for (const [idx, rule] of keyword.rules.entries()) {
       // check if decomp rule matches input
-      const decomp_regex = new RegExp(rule.decomp_pattern, 'i');
+      const decomp_regex = new RegExp(rule.decomp_pattern, 'iu');
       const decomp_match = text.match(decomp_regex); // first match of decomp pattern
       if ( decomp_match ) {
         log('rule ' + idx + ' matched:', rule);
@@ -780,34 +847,38 @@ function make_eliza(script, options={}) {
         log('reasmb ' + reasmb_idx + ' chosen:', stringify_node(reasmb));
         // detect goto directive
         // matches goto marker (optional whitespace) then the keyword to go to
-        const goto_regex = RegExp('^' + regex_escape(options.goto_marker) + '\\s*(.*)', 'i');
+        const goto_regex = RegExp('^' + regex_escape(options.goto_marker) + '\\s*(.*)', 'iu');
         const goto_match = reasmb.match(goto_regex);
+        
+        let reply = '';
         if (goto_match) {
           const goto_key = data.keywords.find( x => x.key == goto_match[1] );
           if (goto_key !== undefined) {
             log('jumping to keyword:', stringify_node(goto_key));
-            return exec_rule(goto_key, text);
+            reply = exec_rule(goto_key, text); // Don't immediately return reply, could have memory flag
           }
+        } else { // no goto match
+          // substitute positional parameters in reassembly rule
+          reply = reasmb;
+          const param_regex = new RegExp(regex_escape(options.param_marker_pre) + '([0-9]+)' + regex_escape(options.param_marker_post), 'gu');
+          reply = reply.replace(param_regex, (match, p1) => {
+            const param = parseInt(p1);
+            if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
+            // tags are counted as params as well, since they are a capture group in the decomp pattern!
+            let val = decomp_match[param]; // capture groups start at idx 1, params as well!
+            if (val === undefined) return '';
+            val = val.trim();
+            // post-process param value
+            let val_post = val;
+            if (data.post_pattern) { // could be empty
+              const post_regex = new RegExp(data.post_pattern, 'giu');
+              val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
+            }
+            log('param (' + param + '):', stringify_node(val), '->', stringify_node(val_post));
+            return val_post;
+          });
         }
-        // substitute positional parameters in reassembly rule
-        let reply = reasmb;
-        const param_regex = new RegExp(regex_escape(options.param_marker_pre) + '([0-9]+)' + regex_escape(options.param_marker_post), 'g');
-        reply = reply.replace(param_regex, (match, p1) => {
-          const param = parseInt(p1);
-          if (Number.isNaN(param) || param <= 0) return ''; // couldn't parse parameter
-          // tags are counted as params as well, since they are a capture group in the decomp pattern!
-          let val = decomp_match[param]; // capture groups start at idx 1, params as well!
-          if (val === undefined) return '';
-          val = val.trim();
-          // post-process param value
-          let val_post = val;
-          if (data.post_pattern) { // could be empty
-            const post_regex = new RegExp(data.post_pattern, 'gi');
-            val_post = val_post.replace(post_regex, (match, p1) => data.post[p1.toLowerCase()]);
-          }
-          log('param (' + param + '):', stringify_node(val), '->', stringify_node(val_post));
-          return val_post;
-        });
+        
         reply = reply.trim();
         if (rule.mem_flag) {
           mem_push(reply); // don't use this reply now, save it
@@ -823,26 +894,69 @@ function make_eliza(script, options={}) {
     text = normalize_input(text, options); // Note: will not remove stop_chars
     log(' '); 
     log('transforming (normalized):', stringify_node(text));
+    
+    // queck for quit* in input
+    for (let quit_phrase of data['quit*']) {
+      let text_ = text;
+      if (options.lowercase_input_quit) { text_ = text_.toLowerCase(); }
+      if (text_.includes(quit_phrase)) {
+        log('quit* phrase found:', quit_phrase);
+        quit = true;
+        return get_final();
+      }
+    }
+    
     let parts = text.split('.');
     // trim and remove empty parts
     parts = parts.map(x => x.trim()).filter( x => x !== '');
+    if (options.reverse_parts) { parts.reverse(); }
+    if (options.shuffle_parts) { parts = shuffle(parts, rnd); }
     log('parts:', parts);
+    
+    // handle empty inputs
+    if (parts.length == 0) {
+      if ('empty' in data && data.empty.length > 0) {
+        last_empty++;
+        if (last_empty >= data.empty.length) last_empty = 0;
+        if (last_empty == 0 && options.shuffle_choices) {
+          data.empty = shuffle(data.empty, rnd);
+        }
+        const reply = data.empty[last_empty];
+        if (reply != '') {
+          log('using empty reply:', stringify_node(reply));
+          return reply;
+        }
+      }
+    }
     
     // for each part...
     for (let [idx, part] of parts.entries()) {
       // check for quit expression
-      if (data.quit.includes(part)) {
+      let part_ = part;
+      if (options.lowercase_input_quit) { part_ = part_.toLowerCase(); }
+      if (data.quit.includes(part_)) {
         quit = true;
         return get_final();
       }
       // pre-process
       if (data.pre_pattern) { // could be empty
-        const pre_regex = new RegExp(data.pre_pattern, 'gi');
-        part = part.replace(pre_regex, (match, p1) => data.pre[p1.toLowerCase()]);
+        const pre_regex = new RegExp(data.pre_pattern, 'gu');
+        part = part.replace(pre_regex, (match, p1) => data.pre[p1]);
+      }
+      if (data['pre*_pattern']) { // could be empty
+        const pre_regex = new RegExp(data['pre*_pattern'], 'gu');
+        part = part.replace(pre_regex, (match, p1) => data['pre*'][p1]);
       }
       // look for keywords
       for (const keyword of data.keywords) {
-        const key_regex = new RegExp(`\\b${regex_escape(keyword.key)}\\b`, 'i');
+        let key_regex;
+        if (options.allow_emoji) {
+          // Regex using whitespace or start/end of input to support emoji (emoji are non-word characters)
+          key_regex = new RegExp(`(^|\\s)${regex_escape(keyword.key)}($|\\s)`, 'iu'); 
+        } else {
+          // Original Regex using word boundaries
+          key_regex = new RegExp(`\\b${regex_escape(keyword.key)}\\b`, 'iu');
+        }
         if ( key_regex.test(part) ) {
           log('keyword found (in part ' + idx + '):', keyword);
           const reply = exec_rule(keyword, part);
