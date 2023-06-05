@@ -82,9 +82,10 @@ function contract_whitespace(str) {
 // }
 
 // https://stackoverflow.com/a/6969486
-// added '-' to be escaped (for use in character classes)
-function regex_escape(str) {
-  return str.replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&'); // $& means the whole matched string
+// Optionally add '-' to be escaped (for use in character classes)
+function regex_escape(str, include_dash = false) {
+  const regex = include_dash ? /[.*+?^${}()|[\]\\\-]/g : /[.*+?^${}()|[\]\\]/g;
+  return str.replace(regex, '\\$&'); // $& means the whole matched string
 }
 
 // fn is a mapping function, which receives two parameters (key and value)
@@ -432,8 +433,8 @@ function normalize_input(text, options) {
   // ignore all characters that arent explicitly allowed
   // A-Z 0-9 and space are always allowed (as well as stop chars)
   // const ignore_pattern = '[^a-zA-Z0-9 '
-  //   + util.regex_escape(options.allow_chars)
-  //   + util.regex_escape(options.stop_chars)
+  //   + util.regex_escape(options.allow_chars, true)
+  //   + util.regex_escape(options.stop_chars, true)
   //   // This doesn't work on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
   //   + ((options.allow_emoji && !util.has_regex_emoji_bug()) ? '\\p{Emoji_Presentation}' : '')
   //   + ']';
@@ -442,8 +443,8 @@ function normalize_input(text, options) {
   // Use a positive match and join all the matches, instead of a negative replace
   // Negative match doesn't work with emoji on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
   const allow_pattern = '[a-zA-Z0-9 '
-    + regex_escape(options.allow_chars)
-    + regex_escape(options.stop_chars)
+    + regex_escape(options.allow_chars, true)
+    + regex_escape(options.stop_chars, true)
     + (options.allow_emoji ? '\\p{Emoji_Presentation}' : '')
     + ']+'; // match strings of allowed chars
   const match = text.match(new RegExp(allow_pattern, 'gu'));
@@ -454,7 +455,7 @@ function normalize_input(text, options) {
   }
   
   text = contract_whitespace(text);
-  const stop_pattern = '[' + regex_escape(options.stop_chars) + ']';
+  const stop_pattern = '[' + regex_escape(options.stop_chars, true) + ']';
   text = text.replace(new RegExp(stop_pattern, 'gu'), '.');
   const stop_word_pattern = '\\b(' + options.stop_words.map(regex_escape).join('|') + ')\\b';
   text = text.replace(new RegExp(stop_word_pattern, 'gu'), '.');
