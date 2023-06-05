@@ -239,8 +239,8 @@ export function normalize_input(text, options) {
   // ignore all characters that arent explicitly allowed
   // A-Z 0-9 and space are always allowed (as well as stop chars)
   // const ignore_pattern = '[^a-zA-Z0-9 '
-  //   + util.regex_escape(options.allow_chars)
-  //   + util.regex_escape(options.stop_chars)
+  //   + util.regex_escape(options.allow_chars, true)
+  //   + util.regex_escape(options.stop_chars, true)
   //   // This doesn't work on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
   //   + ((options.allow_emoji && !util.has_regex_emoji_bug()) ? '\\p{Emoji_Presentation}' : '')
   //   + ']';
@@ -249,8 +249,8 @@ export function normalize_input(text, options) {
   // Use a positive match and join all the matches, instead of a negative replace
   // Negative match doesn't work with emoji on Safari: https://bugs.webkit.org/show_bug.cgi?id=205477
   const allow_pattern = '[a-zA-Z0-9 '
-    + util.regex_escape(options.allow_chars)
-    + util.regex_escape(options.stop_chars)
+    + util.regex_escape(options.allow_chars, true)
+    + util.regex_escape(options.stop_chars, true)
     + (options.allow_emoji ? '\\p{Emoji_Presentation}' : '')
     + ']+'; // match strings of allowed chars
   const match = text.match(new RegExp(allow_pattern, 'gu'));
@@ -261,7 +261,7 @@ export function normalize_input(text, options) {
   }
   
   text = util.contract_whitespace(text);
-  const stop_pattern = '[' + util.regex_escape(options.stop_chars) + ']';
+  const stop_pattern = '[' + util.regex_escape(options.stop_chars, true) + ']';
   text = text.replace(new RegExp(stop_pattern, 'gu'), '.');
   const stop_word_pattern = '\\b(' + options.stop_words.map(util.regex_escape).join('|') + ')\\b';
   text = text.replace(new RegExp(stop_word_pattern, 'gu'), '.');

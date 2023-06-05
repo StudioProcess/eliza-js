@@ -164,6 +164,7 @@ export default {
     "hä": "Wie bitte?!",
     "hätten": "Hättiwari!",
     "oesterreich": "Alpenland",
+    "end-to-end": "To end?",
     
     "überhaupt": {
       "* überhaupt *": "Überhaupt OK",

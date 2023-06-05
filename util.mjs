@@ -60,9 +60,10 @@ export function contract_whitespace(str) {
 // }
 
 // https://stackoverflow.com/a/6969486
-// added '-' to be escaped (for use in character classes)
-export function regex_escape(str) {
-  return str.replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&'); // $& means the whole matched string
+// Optionally add '-' to be escaped (for use in character classes)
+export function regex_escape(str, include_dash = false) {
+  const regex = include_dash ? /[.*+?^${}()|[\]\\\-]/g : /[.*+?^${}()|[\]\\]/g
+  return str.replace(regex, '\\$&'); // $& means the whole matched string
 }
 
 // fn is a mapping function, which receives two parameters (key and value)
